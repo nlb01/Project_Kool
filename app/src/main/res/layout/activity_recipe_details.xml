@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="10dp"
+    android:background="@color/main_background"
+    android:fillViewport="false">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".RecipeDetails"
+        android:background="@color/main_background">
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/add"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/ring_button"
+            android:text="@string/add_button"
+            android:onClick="addActivity"
+            android:textColor="@color/button_outline"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.986"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.023" />
+
+        <androidx.appcompat.widget.AppCompatEditText
+            android:layout_width="320dp"
+            android:layout_height="48dp"
+            android:background="@drawable/search_button"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/add"
+            app:layout_constraintHorizontal_bias="0.186"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.023"
+            tools:ignore="SpeakableTextPresentCheck" />
+
+
+        <LinearLayout
+            android:id="@+id/lin_layout1"
+            android:layout_width="379dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="100dp"
+            android:background="@color/card_background"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/recipe_pic"
+                android:layout_width="360dp"
+                android:layout_height="200dp"
+                android:layout_margin="10dp"
+                android:scaleType="fitXY"
+                tools:srcCompat="@drawable/logo_transparent" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:maxHeight="35dp"
+                android:text="@string/test_title"
+                android:textColor="@color/title_color"
+                android:layout_marginBottom="7dp"
+                android:layout_marginTop="10dp"
+                />
+
+            <LinearLayout
+                android:layout_width="369dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:background="@android:color/transparent"
+                android:orientation="horizontal"
+                android:layout_marginBottom="10dp">
+
+                <TextView
+                    android:id="@+id/time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/time_test" />
+
+                <TextView
+                    android:id="@+id/type"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/type_test" />
+
+                <TextView
+                    android:id="@+id/style"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/style_test"
+                    android:textAlignment="textEnd" />
+            </LinearLayout>
+
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:maxHeight="35dp"
+                android:padding="2dp"
+                android:text="@string/test_ingredients"
+                android:textColor="@color/title_color" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="369dp"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:lineSpacingExtra="2sp"
+                android:text="@string/test_ingredients_details" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:maxHeight="35dp"
+                android:text="@string/test_instruction"
+                android:textColor="@color/title_color"
+                android:padding="2dp"/>
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="369dp"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:lineSpacingExtra="2sp"
+                android:text="@string/test_instruction_details" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:maxHeight="35dp"
+                android:text="@string/test_notes"
+                android:textColor="@color/title_color"
+                android:padding="2dp"/>
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="369dp"
+                android:layout_height="wrap_content"
+                android:text="@string/test_notes_details"
+                android:padding="5dp"
+                android:lineSpacingExtra="2sp"
+                />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:maxHeight="35dp"
+                android:text="@string/watch"
+                android:textColor="@color/title_color"
+                android:padding="2dp"/>
+
+            <VideoView
+                android:id="@+id/vid"
+                android:layout_width="350dp"
+                android:layout_height="250dp"
+                android:layout_marginBottom="10dp"
+                android:layout_gravity="center" />
+
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/lin_layout2"
+            android:layout_width="379dp"
+            android:layout_height="wrap_content"
+            android:background="@color/main_background"
+            android:orientation="vertical"
+            android:layout_marginTop="25dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/lin_layout1" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/rate"
+                android:textColor="@color/title_color"
+                android:padding="2dp"
+                />
+
+            <RatingBar
+                android:id="@+id/ratingBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                style="?android:attr/ratingBarStyleSmall"
+                android:background="@color/main_background"
+                android:paddingBottom="5dp"
+                android:isIndicator="false"
+                android:progressTint="@color/title_color"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/comment_title"
+                android:layout_marginBottom="10dp"
+                android:textColor="@color/title_color"
+                android:padding="2dp"
+                />
+
+            <TextView
+                android:layout_width="360dp"
+                android:layout_height="wrap_content"
+                android:text="@string/comment_1"
+                android:layout_marginBottom="10dp"
+                android:background="@color/white"
+                android:padding="5dp"
+                android:lineSpacingExtra="2sp"
+                />
+
+            <TextView
+                android:layout_width="360dp"
+                android:layout_height="wrap_content"
+                android:text="@string/comment_2"
+                android:layout_marginBottom="10dp"
+                android:background="@color/white"
+                android:padding="5dp"
+                android:lineSpacingExtra="2sp"
+                />
+
+            <EditText
+                android:layout_width="360dp"
+                android:layout_height="100dp"
+                android:layout_marginBottom="10dp"
+                android:background="@color/white"
+                android:inputType="textMultiLine"
+                android:singleLine="false"
+                android:gravity="top"
+                android:padding="5dp"
+                android:lineSpacingExtra="2sp"
+                />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/search_button"
+                android:text="@string/post"
+                android:textColor="@color/button_outline"
+                android:layout_marginBottom="10dp"
+                android:layout_gravity="right"
+                android:onClick="comment"
+                android:layout_marginRight="20dp"/>
+
+
+        </LinearLayout>
+
+
+
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</ScrollView>

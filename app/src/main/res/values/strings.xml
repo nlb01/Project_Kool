@@ -1,0 +1,47 @@
+<resources>
+    <string name="app_name">Kool Kotlin</string>
+    <string name="app_start">AUB - Mobile Development</string>
+    <string name="con_dec">App Logo</string>
+    <string name="add_button">+</string>
+
+
+    <string name="add_title">Title :</string>
+    <string name="add_time">Time :</string>
+    <string name="add_type">Type :</string>
+    <string name="add_style">Style :</string>
+    <string name="add_pic">Picture :</string>
+    <string name="add_vid">Video Link :</string>
+    <string name="upload_pic">Upload</string>
+    <string name="add_recipe">Add Recipe</string>
+    <string name="pic">Null</string>
+
+    <string name="test_title">Homemade Spicy Kung Pao Chicken Noodles</string>
+    <string name="time_test">Time : 45 minutes</string>
+    <string name="type_test">Type : Italian</string>
+    <string name="style_test">Style : Pasta</string>
+    <string name="test_ingredients">Ingredients</string>
+    <string name="test_instruction">Instructions:</string>
+    <string name="test_ingredients_details">Chicken broth, Light soy, Dark Soy Sauce, Chinese wine, Chinese black vinegar, Sichuan (or Szechuan) pepper, sugar, cornstarch, cooking oil,
+garlic, ginger, red bell pepper, green bell pepper, dried chilies, sesame oil, roasted/unsalted peanuts.</string>
+
+    <string name="test_instruction_details">1 -Combine all ingredients for the chicken in a shallow bowl; cover and marinate for 10 minutes (if time allows).\n2- Whisk sauce ingredients together until sugar dissolves; set aside.
+\n3- Heat a large skillet, pan or wok over high heat. \n4- Add 2 tablespoons of cooking oil, allow to heat up, then add marinated chicken. Fry chicken for 3-4 minutes while occasionally stirring, until edges are browned. Remove from heat and set aside.
+Add remaining cooking oil into the same pan/wok. Stir in garlic, ginger, chili diced peppers (capsicums) and Sichuan peppercorns and stir fry for 1 minute.
+\n5- Give the prepared sauce a mix, then pour it into the pan and bring it to a boil while stirring.
+\n6- Once it begins to thicken slightly, add chicken back into the pan/wok and mix all of the ingredients through the sauce until the chicken is evenly coated and sauce has thickened, (about 2 minutes).
+\n7- Stir in green onions, peanuts and sesame oil. Toss well and continue to cook for a further 2 minutes to infuse all of the flavours together.
+\n8- Serve immediately with steamed/cooked rice or fried rice!</string>
+
+    <string name="test_notes">Notes:</string>
+    <string name="test_notes_details">*Our kung pao sauce is not sweet for most of our readers and balances out the heat or spice-level. However, start with 1 teaspoon if you are hesitant or omit the sugar completely.
+</string>
+
+    <string name="watch">Watch Video Here!!</string>
+
+    <string name="rate">Like it?</string>
+    <string name="comment_title">Comments: (We value your input to improve our recipes)</string>
+    <string name="comment_1">Adding a little bit of pineapple juice to the stir fry makes it sweeter in a weird but tasty way</string>
+    <string name="comment_2">The recipe is really good honestly...and it goes really well with a glas of red wine.</string>
+    <string name="post">Post</string>
+    <string name="title_activity_home_page_compose">HomePageCompose</string>
+</resources>
