@@ -1,31 +1,29 @@
 package com.example.koolkotlin
 
 import android.content.Intent
-import android.graphics.Color
 import android.media.Image
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View.inflate
 import android.widget.EditText
+import android.widget.HorizontalScrollView
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.appcompat.resources.Compatibility.Api21Impl.inflate
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.res.colorResource
@@ -58,20 +56,36 @@ class HomePageCompose : ComponentActivity() {
         }
         addComposeView()
     }
+    
 
-    fun addComposeView() {
+    private fun addComposeView() {
         binding.uiCompose.setContent {
-            Column {
-                for (i in 1..7) {
-                    PreviewCardArguments()
-                    Spacer(modifier = Modifier.height(20.dp))
-                }
-            }
+            setContent()
         }
     }
 
 }
 
+@Composable
+fun setContent() {
+    Column {
+        Row(modifier = Modifier.horizontalScroll(rememberScrollState(),enabled = true, reverseScrolling = true, )) {
+            for (i in 1..7) {
+                previewType(type = "Pasta")
+                Spacer(modifier = Modifier.width(5.dp))
+            }
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        Column {
+            for (i in 1..7) {
+                PreviewCardArguments()
+                Spacer(modifier = Modifier.height(20.dp))
+            }
+        }
+    }
+}
 //@Composable
 //fun searchBar() {
 //    AndroidView(
@@ -156,13 +170,34 @@ class HomePageCompose : ComponentActivity() {
 //    }
 //}
 
+
+@Composable
+fun previewType(type: String) {
+
+    Card(
+        elevation = 10.dp,
+        modifier = Modifier.padding(10.dp),
+        shape = CircleShape,
+        border = BorderStroke(2.dp , colorResource(R.color.title_color))
+    ) {
+        Text(
+            text = "Pasta",
+            modifier = Modifier
+                .background(colorResource(id = R.color.card_background))
+                .padding(10.dp),)
+    }
+}
+
+
 @Composable
 fun PreviewCard(time: String, Style: String, Type:String, Ingredients: String, Title: String) {
 
     val textColor = colorResource(id = R.color.title_color);
 
     Card(
-        shape = RoundedCornerShape(20.dp)
+        shape = RoundedCornerShape(20.dp),
+        elevation = 10.dp,
+        border = BorderStroke(2.dp , colorResource(R.color.button_outline))
         ) {
         Column (
             horizontalAlignment = Alignment.CenterHorizontally,

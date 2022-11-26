@@ -1,11 +1,34 @@
 package com.example.koolkotlin
 
+import android.app.Activity
+import java.sql.*
+import java.util.Properties
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.ImageDecoder
+import android.net.Uri
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.StrictMode
+import android.provider.MediaStore
+import android.util.Log
 import android.view.View
+import android.widget.EditText
+import androidx.compose.foundation.Image
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import com.example.koolkotlin.ui.theme.DBConstants
+import java.io.ByteArrayOutputStream
+import kotlin.concurrent.thread
 
 class AddRecipe : AppCompatActivity() {
+    var pickedPhoto :Uri? = null
+    var pickedBitMap : Bitmap? = null
+
+    private var conn: Connection? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_recipe)
@@ -15,13 +38,163 @@ class AddRecipe : AppCompatActivity() {
         }
     }
 
+
+
+//    fun executeMySQLQuery(byteArray: ByteArray) {
+//        var stmt: Statement? = null
+//        var resultset: ResultSet? = null
+//
+//        try {
+//            stmt = conn!!.createStatement()
+//            val sql = "Insert into Test_Image (ID , Bitmap) Values (?, ?)"
+//
+//            val prepstmt = conn!!.prepareStatement(sql)
+//
+//            prepstmt.setInt(1, 1)
+////            prepstmt.setBlob(2, byteArray)
+//
+//
+////            while (resultset!!.next()) {
+////                Log.i("DB" , "Database found" + resultset.getString("Database"))
+////            }
+//        } catch (ex: SQLException) {
+//            Log.i("DB" , "SQL Exception found executing statement!")
+//            ex.printStackTrace()
+//            Log.i("DB" , "Trace")
+//        } finally {
+//            // release resources
+//            if (resultset != null) {
+//                try {
+//                    resultset.close()
+//                } catch (sqlEx: SQLException) {
+//                }
+//
+//                resultset = null
+//            }
+//
+//            if (stmt != null) {
+//                try {
+//                    stmt.close()
+//                } catch (sqlEx: SQLException) {
+//                }
+//
+//                stmt = null
+//            }
+//
+//            if (conn != null) {
+//                try {
+//                    conn!!.close()
+//                } catch (sqlEx: SQLException) {
+//                }
+//                conn = null
+//            }
+//        }
+//    }
+
+
+//    fun getConnection() {
+//        val connectionProps = Properties()
+//        connectionProps.put("user", DBConstants.USER)
+//        connectionProps.put("password", DBConstants.PASS)
+//        try {
+//            Class.forName("com.mysql.jdbc.Driver").newInstance()
+//            conn = DriverManager.getConnection("jdbc:" + "mysql" + "://"
+//                + DBConstants.HOST + ":" + DBConstants.PORT + "/" + "",
+//            connectionProps)
+//
+//            //"jdbc:" + "mysql" + "://" +
+//            //                    DBConstants.HOST +
+//            //            ":" + DBConstants.PORT + "/" +
+//            //            ""
+//
+//            Log.i("DB" , "Database Connection Successful")
+//        } catch (ex: SQLException) {
+//            Log.i("DB" , "SQL Exception Found! Database Connection Failed")
+//            ex.printStackTrace()
+//            Log.i("DB" , "This was the stack trace")
+//        } catch (ex: Exception) {
+//            Log.i("DB" , "Exception Found! Database Connection Failed")
+//            ex.printStackTrace()
+//            Log.i("DB" , "This was the stack trace")
+//        }
+//    }
+
+
     fun addActivity(view : View) {
         intent = Intent(this, AddRecipe::class.java);
         startActivity(intent);
     }
 
+//    fun uploadPicture(view: View) {
+//        if(ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE)
+//            != PackageManager.PERMISSION_GRANTED){
+//            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE) , 1)
+//        }
+//
+//        else {
+//            val galleryIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+//            startActivityForResult(galleryIntent , 2)
+//
+//        }
+//
+//    }
+
+//    override fun onRequestPermissionsResult(
+//        requestCode: Int,
+//        permissions: Array<out String>,
+//        grantResults: IntArray
+//    ) {
+//        if(grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//            val galleryIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+//            startActivityForResult(galleryIntent , 2)
+//        }
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+//    }
+
+//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+//        if(requestCode == 2 && resultCode == Activity.RESULT_OK && data != null) {
+//            pickedPhoto = data.data
+//            if(Build.VERSION.SDK_INT >= 28) {
+//                val source = ImageDecoder.createSource(this.contentResolver, pickedPhoto!!)
+//                pickedBitMap = ImageDecoder.decodeBitmap(source)
+//            }
+//            else {
+//                pickedBitMap = MediaStore.Images.Media.getBitmap(this.contentResolver , pickedPhoto)
+//            }
+//        }
+//        super.onActivityResult(requestCode, resultCode, data)
+//    }
+
     fun details(view: View) {
-        intent = Intent(this, RecipeDetails::class.java);
-        startActivity(intent);
+
+        val title = findViewById<EditText>(R.id.titleText).text.toString()
+        val time = findViewById<EditText>(R.id.timeText).text.toString()
+        val style = findViewById<EditText>(R.id.styleText).text.toString()
+        val type = findViewById<EditText>(R.id.typeText).text.toString()
+
+        val instructions = findViewById<EditText>(R.id.instructionsText).text.toString()
+        val ingredients = findViewById<EditText>(R.id.ingredientsText).text.toString()
+        val notes = findViewById<EditText>(R.id.notesText).text.toString()
+        val videoLink = findViewById<EditText>(R.id.videoText).text.toString()
+
+        val videoId = videoLink.split("=")[1]
+        val ingredientsArray:List<String> = ingredients.split(",").map { it -> it.trim() }
+        val instructionsArray:List<String> = instructions.split("\n")
+
+//        val stream: ByteArrayOutputStream = ByteArrayOutputStream()
+//        if(pickedBitMap != null) {
+//            Log.i("bitmap" , "Bitmap Not null!!")
+//        }
+//        pickedBitMap?.compress(Bitmap.CompressFormat.PNG , 100, stream)
+//        val byteArray = stream.toByteArray()
+
+//        thread(start = true) {
+//            getConnection()
+//            executeMySQLQuery(byteArray)
+//        }
+//        intent = Intent(this, TestActivity::class.java);
+//        intent.putExtra("title", byteArray)
+//        Log.i("bitmap" , "Attached Byte Array to Intent")
+//        startActivity(intent);
     }
 }

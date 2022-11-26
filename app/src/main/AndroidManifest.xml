@@ -4,6 +4,7 @@
     package="com.example.koolkotlin">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
         android:allowBackup="true"
@@ -15,6 +16,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.KoolKotlin"
         tools:targetApi="31">
+        <activity
+            android:name=".TestActivity"
+            android:exported="false" />
         <activity
             android:name=".HomePageCompose"
             android:exported="false"
