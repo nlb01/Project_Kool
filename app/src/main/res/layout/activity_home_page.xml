@@ -15,33 +15,8 @@
         tools:context=".RecipeDetails"
         android:background="@color/main_background">
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/add"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:background="@drawable/ring_button"
-        android:text="@string/add_button"
-        android:textColor="@color/button_outline"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.986"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.023" />
 
-    <androidx.appcompat.widget.AppCompatEditText
-        android:id="@+id/search_text"
-        android:layout_width="320dp"
-        android:layout_height="48dp"
-        android:background="@drawable/search_button"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/add"
-        app:layout_constraintHorizontal_bias="0.186"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.023"
-        tools:ignore="SpeakableTextPresentCheck" />
-
+        <include layout="@layout/top_bar" />
 
     <androidx.compose.ui.platform.ComposeView
         android:id="@+id/ui_compose"
@@ -51,7 +26,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/search_text"
+        app:layout_constraintTop_toBottomOf="@+id/topBar"
         app:layout_constraintVertical_bias="0.023"
         />
 

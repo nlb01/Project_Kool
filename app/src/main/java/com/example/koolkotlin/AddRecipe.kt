@@ -15,7 +15,10 @@ import android.os.StrictMode
 import android.provider.MediaStore
 import android.util.Log
 import android.view.View
+import android.widget.ArrayAdapter
 import android.widget.EditText
+import android.widget.ImageButton
+import android.widget.MultiAutoCompleteTextView
 import androidx.compose.foundation.Image
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -26,7 +29,7 @@ import kotlin.concurrent.thread
 class AddRecipe : AppCompatActivity() {
     var pickedPhoto :Uri? = null
     var pickedBitMap : Bitmap? = null
-
+    val days = arrayOf<String>("monday" , "tuesday", "thursday" , "sunnday", "sunday", "sundaaaay")
     private var conn: Connection? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,6 +39,19 @@ class AddRecipe : AppCompatActivity() {
         if (supportActionBar != null) {
             supportActionBar!!.hide()
         }
+
+        val textView = findViewById<MultiAutoCompleteTextView>(R.id.search_text)
+        val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1
+            , days)
+        textView.setAdapter(adapter)
+        textView.threshold = 1
+        textView.setTokenizer(MultiAutoCompleteTextView.CommaTokenizer())
+
+        findViewById<ImageButton>(R.id.add).setOnClickListener {
+            intent = Intent(this, AddRecipe::class.java);
+            startActivity(intent);
+        }
+
     }
 
 

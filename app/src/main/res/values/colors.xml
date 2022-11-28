@@ -11,4 +11,5 @@
     <color name="button_outline">#DDA7B3</color>
     <color name="card_background">#F7DFC2</color>
     <color name="title_color">#970747</color>
+    <color name="input_field">#fcf5ec</color>
 </resources>

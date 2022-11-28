@@ -15,33 +15,7 @@
         tools:context=".RecipeDetails"
         android:background="@color/main_background">
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/add"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="@drawable/ring_button"
-            android:text="@string/add_button"
-            android:onClick="addActivity"
-            android:textColor="@color/button_outline"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.986"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.023" />
-
-        <androidx.appcompat.widget.AppCompatEditText
-            android:layout_width="320dp"
-            android:layout_height="48dp"
-            android:background="@drawable/search_button"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="@+id/add"
-            app:layout_constraintHorizontal_bias="0.186"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.023"
-            tools:ignore="SpeakableTextPresentCheck" />
-
+        <include layout="@layout/top_bar"/>
 
         <LinearLayout
             android:id="@+id/lin_layout1"

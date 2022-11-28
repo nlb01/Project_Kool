@@ -44,4 +44,5 @@ Add remaining cooking oil into the same pan/wok. Stir in garlic, ginger, chili d
     <string name="comment_2">The recipe is really good honestly...and it goes really well with a glas of red wine.</string>
     <string name="post">Post</string>
     <string name="title_activity_home_page_compose">HomePageCompose</string>
+    <string name="time_hint"><font size="15">Duration in Minutes</font></string>
 </resources>

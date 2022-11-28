@@ -5,8 +5,7 @@ import android.media.Image
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View.inflate
-import android.widget.EditText
-import android.widget.HorizontalScrollView
+import android.widget.*
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.appcompat.resources.Compatibility.Api21Impl.inflate
@@ -44,16 +43,28 @@ import com.example.koolkotlin.ui.theme.card_background
 
 class HomePageCompose : ComponentActivity() {
 
+    val days = arrayOf<String>("monday" , "tuesday", "thursday" , "sunnday", "sunday", "sundaaaay")
     private lateinit var binding: ActivityHomePageBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityHomePageBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        binding.add.setOnClickListener {
+
+        val textView = findViewById<MultiAutoCompleteTextView>(R.id.search_text)
+        val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1
+            , days)
+        textView.setAdapter(adapter)
+        textView.threshold = 1
+        textView.setTokenizer(MultiAutoCompleteTextView.CommaTokenizer())
+
+        val add = findViewById<ImageButton>(R.id.add)
+        add.setOnClickListener {
+            add.setBackgroundResource(R.drawable.button_clicked)
             intent = Intent(this, AddRecipe::class.java);
             startActivity(intent);
         }
+
         addComposeView()
     }
     
@@ -86,89 +97,8 @@ fun setContent() {
         }
     }
 }
-//@Composable
-//fun searchBar() {
-//    AndroidView(
-//        factory = { context ->
-//            val view = LayoutInflater.from(context).inflate(R.layout.RecipeDetails, null, false)
-//            val textView = view.findViewById<TextView>(R.id.text)
-//
-//            // do whatever you want...
-//            view // return the view
-//        },
-//        update = { view ->
-//            // Update the view
-//        }
-//    )
-//}
 
 
-
-//@Composable
-//fun TxtField() {
-//    // we are creating a variable for
-//    // getting a value of our text field.
-//    var inputvalue = remember { mutableStateOf(TextFieldValue()) }
-//    Row(
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .background(color = colorResource(id = R.color.main_background))
-//    )
-//    {
-//        OutlinedTextField(
-//            value = inputvalue.value,
-//            onValueChange = { inputvalue.value = it},
-//            placeholder = { androidx.compose.material.Text(text = "Enter Ingredients", color = colorResource(
-//                id = R.color.title_color)
-//            ) },
-//            modifier = Modifier
-//                .background(colorResource(id = R.color.main_background))
-//                .padding(all = 16.dp)
-//                .fillMaxWidth(),
-//            shape = RoundedCornerShape(30.dp),
-//            keyboardOptions = KeyboardOptions(
-//                autoCorrect = true,
-//                keyboardType = KeyboardType.Text,
-//                ),
-//            textStyle = TextStyle(
-//                color = colorResource(id = R.color.button_outline),
-//                ),
-//            singleLine = true,
-//            maxLines = 1,
-//            colors = TextFieldDefaults.outlinedTextFieldColors(
-//                unfocusedBorderColor = colorResource(id = R.color.button_outline),
-//            ),
-//        )
-//
-//        Button(onClick = { /*TODO*/ }) {
-//            Text(text = "+" , color = colorResource(id = R.color.title_color))
-//        }
-//    }
-    
-    
-//}
-
-// @Preview function is use to see preview
-// for our composable function in preview section
-//@Preview()
-//@Composable
-//fun DefaultPreview() {
-//    TxtField()
-//}
-
-
-
-//@Preview
-//@Composable
-//fun SearchAddBar(){
-//    Row(
-//        modifier = Modifier
-//        .background(colorResource(id = R.color.main_background))
-//    )
-//    {
-//
-//    }
-//}
 
 
 @Composable
