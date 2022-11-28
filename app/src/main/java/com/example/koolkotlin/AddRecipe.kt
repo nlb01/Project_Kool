@@ -14,7 +14,9 @@ import android.os.Bundle
 import android.os.StrictMode
 import android.provider.MediaStore
 import android.util.Log
+import android.view.MotionEvent
 import android.view.View
+import android.view.animation.AnimationUtils
 import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.ImageButton
@@ -47,7 +49,55 @@ class AddRecipe : AppCompatActivity() {
         textView.threshold = 1
         textView.setTokenizer(MultiAutoCompleteTextView.CommaTokenizer())
 
-        findViewById<ImageButton>(R.id.add).setOnClickListener {
+        val add = findViewById<ImageButton>(R.id.add)
+        val bookMark = findViewById<ImageButton>(R.id.bookMark)
+
+        val scale_down = AnimationUtils.loadAnimation(this, R.anim.scale_down)
+        val scale_up = AnimationUtils.loadAnimation(this, R.anim.scale_up)
+
+        bookMark.setOnTouchListener(
+            View.OnTouchListener {
+                    view ,
+                    motionEvent -> when (motionEvent.action) {
+                MotionEvent.ACTION_UP -> {
+                    bookMark.startAnimation(scale_down)
+                    bookMark.performClick()
+                    bookMark.setBackgroundResource(R.drawable.ring_button)
+                }
+                MotionEvent.ACTION_DOWN -> {
+                    bookMark.startAnimation(scale_up)
+                    bookMark.setBackgroundResource(R.drawable.button_clicked)
+                }
+            }
+                return@OnTouchListener true
+            }
+        )
+
+        add.setOnTouchListener(
+            View.OnTouchListener {
+                    view ,
+                    motionEvent -> when (motionEvent.action) {
+                MotionEvent.ACTION_UP -> {
+                    add.startAnimation(scale_down)
+                    add.performClick()
+                    add.setBackgroundResource(R.drawable.ring_button)
+                }
+                MotionEvent.ACTION_DOWN -> {
+                    add.startAnimation(scale_up)
+                    add.setBackgroundResource(R.drawable.button_clicked)
+                }
+            }
+                return@OnTouchListener true
+            }
+        )
+
+        bookMark.setOnClickListener {
+            intent = Intent(this, HomePageCompose::class.java);
+            intent.putExtra("bookMark" , true)
+            startActivity(intent);
+        }
+
+        add.setOnClickListener {
             intent = Intent(this, AddRecipe::class.java);
             startActivity(intent);
         }

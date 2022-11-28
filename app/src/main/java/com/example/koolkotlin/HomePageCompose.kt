@@ -4,7 +4,11 @@ import android.content.Intent
 import android.media.Image
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.view.View
 import android.view.View.inflate
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.widget.*
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -25,6 +29,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.layout.AlignmentLine
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -33,6 +38,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat.startActivity
 import com.example.koolkotlin.databinding.ActivityHomePageBinding
 //import androidx.compose.ui.viewinterop.AndroidView
 //import androidx.core.content.res.ColorStateListInflaterCompat.inflate
@@ -59,12 +65,57 @@ class HomePageCompose : ComponentActivity() {
         textView.setTokenizer(MultiAutoCompleteTextView.CommaTokenizer())
 
         val add = findViewById<ImageButton>(R.id.add)
-        add.setOnClickListener {
-            add.setBackgroundResource(R.drawable.button_clicked)
-            intent = Intent(this, AddRecipe::class.java);
+        val bookMark = findViewById<ImageButton>(R.id.bookMark)
+
+        val scale_down = AnimationUtils.loadAnimation(this, R.anim.scale_down)
+        val scale_up = AnimationUtils.loadAnimation(this, R.anim.scale_up)
+
+        bookMark.setOnTouchListener(
+            View.OnTouchListener {
+                    view ,
+                    motionEvent -> when (motionEvent.action) {
+                MotionEvent.ACTION_UP -> {
+                    bookMark.startAnimation(scale_down)
+                    bookMark.performClick()
+                    bookMark.setBackgroundResource(R.drawable.ring_button)
+                }
+                MotionEvent.ACTION_DOWN -> {
+                    bookMark.startAnimation(scale_up)
+                    bookMark.setBackgroundResource(R.drawable.button_clicked)
+                }
+            }
+                return@OnTouchListener true
+            }
+        )
+
+        add.setOnTouchListener(
+            View.OnTouchListener {
+                    view ,
+                    motionEvent -> when (motionEvent.action) {
+                        MotionEvent.ACTION_UP -> {
+                            add.startAnimation(scale_down)
+                            add.performClick()
+                            add.setBackgroundResource(R.drawable.ring_button)
+                        }
+                        MotionEvent.ACTION_DOWN -> {
+                            add.startAnimation(scale_up)
+                            add.setBackgroundResource(R.drawable.button_clicked)
+                        }
+                    }
+                return@OnTouchListener true
+            }
+        )
+
+        bookMark.setOnClickListener {
+            intent = Intent(this, HomePageCompose::class.java);
+            intent.putExtra("bookMark" , true)
             startActivity(intent);
         }
 
+        add.setOnClickListener {
+            intent = Intent(this, AddRecipe::class.java);
+            startActivity(intent);
+        }
         addComposeView()
     }
     
@@ -101,14 +152,18 @@ fun setContent() {
 
 
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun previewType(type: String) {
+
+    val context = LocalContext.current
 
     Card(
         elevation = 10.dp,
         modifier = Modifier.padding(10.dp),
         shape = CircleShape,
-        border = BorderStroke(2.dp , colorResource(R.color.title_color))
+        border = BorderStroke(2.dp , colorResource(R.color.title_color)),
+        onClick = {context.startActivity(Intent(context, HomePageCompose::class.java))}
     ) {
         Text(
             text = "Pasta",
@@ -119,15 +174,19 @@ fun previewType(type: String) {
 }
 
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun PreviewCard(time: String, Style: String, Type:String, Ingredients: String, Title: String) {
 
     val textColor = colorResource(id = R.color.title_color);
-
+    val context = LocalContext.current
     Card(
         shape = RoundedCornerShape(20.dp),
         elevation = 10.dp,
-        border = BorderStroke(2.dp , colorResource(R.color.button_outline))
+        border = BorderStroke(2.dp , colorResource(R.color.button_outline)),
+        onClick = {
+            context.startActivity(Intent(context,RecipeDetails::class.java))
+        }
         ) {
         Column (
             horizontalAlignment = Alignment.CenterHorizontally,
