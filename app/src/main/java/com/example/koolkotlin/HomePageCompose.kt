@@ -3,6 +3,7 @@ package com.example.koolkotlin
 import android.content.Intent
 import android.media.Image
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -46,6 +47,11 @@ import com.example.koolkotlin.databinding.ActivityHomePageBinding
 import com.example.koolkotlin.ui.theme.KoolKotlinTheme
 import com.example.koolkotlin.ui.theme.Main_background
 import com.example.koolkotlin.ui.theme.card_background
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 class HomePageCompose : ComponentActivity() {
 
@@ -56,7 +62,7 @@ class HomePageCompose : ComponentActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityHomePageBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
+        getRecipes()
         val textView = findViewById<MultiAutoCompleteTextView>(R.id.search_text)
         val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1
             , days)
@@ -142,6 +148,7 @@ fun setContent() {
 
         Column {
             for (i in 1..7) {
+                getRecipes()
                 PreviewCardArguments()
                 Spacer(modifier = Modifier.height(20.dp))
             }
@@ -149,7 +156,28 @@ fun setContent() {
     }
 }
 
+fun getRecipes() {
+    val retrofit = Retrofit.Builder()
+        .baseUrl("https://kool.blackab.repl.co/")
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
 
+    val service = retrofit.create(APIinterface::class.java)
+    val call = service.getRecipes()
+
+    call.enqueue(object : Callback<List<RecipesItem>> {
+        override fun onResponse(call: Call<List<RecipesItem>>, response: Response<List<RecipesItem>>) {
+            if (response.isSuccessful) {
+                val recipes = response.body()
+                //return recipes
+            }
+        }
+
+        override fun onFailure(call: Call<List<RecipesItem>>, t: Throwable) {
+            Log.d("recipe", "error")
+        }
+    })
+}
 
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -252,8 +280,17 @@ fun PreviewCard(time: String, Style: String, Type:String, Ingredients: String, T
 
 
 @Composable
-fun PreviewCardArguments() {
+fun PreviewCardArguments( time: String, Style: String, Type:String, Ingredients: String, Title: String) {
     PreviewCard(time = "30 minutes", Style = "Italian", Type = "Pasta", Ingredients = "Penne Pasta, Chicken,...", Title = "Homemade Spicy Kung Pao Chicken Noodles")
 }
+
+//function to get the data from the endpoint
+
+
+
+
+
+
+
 
 
