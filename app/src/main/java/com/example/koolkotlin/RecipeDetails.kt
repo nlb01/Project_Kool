@@ -9,23 +9,30 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.animation.AnimationUtils
 import android.widget.*
+import androidx.appcompat.widget.AppCompatTextView
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
+import com.example.koolkotlin.ui.theme.RecipeListViewModel
 import com.google.android.youtube.player.YouTubeBaseActivity
 import com.google.android.youtube.player.YouTubeInitializationResult
 import com.google.android.youtube.player.YouTubePlayer
 import com.google.android.youtube.player.YouTubePlayerView
 import com.google.gson.Gson
+import kotlinx.android.synthetic.main.activity_main.*
 import java.net.HttpURLConnection
 import java.net.URL
 
 import kotlinx.android.synthetic.main.activity_recipe_details.*
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
 class RecipeDetails : YouTubeBaseActivity() {
-    val days = arrayOf<String>("monday" , "tuesday", "thursday" , "sunnday", "sunday", "sundaaaay")
-
-
     val api_key = "AIzaSyCH9vxYf1w9z7XxsFmaMLy8uJImEikYU_c"
 
     lateinit var ytPlayerInit : YouTubePlayer.OnInitializedListener
@@ -33,49 +40,18 @@ class RecipeDetails : YouTubeBaseActivity() {
     val url = URL("https://kool.blackab.repl.co/ingredients")
 
 
-//    with(url.openConnection() as HttpURLConnection) {
-//        requestMethod = "GET"  // optional default is GET
-//
-//        println("\nSent 'GET' request to URL : $url; Response Code : $responseCode")
-//
-//        inputStream.bufferedReader().use {
-//            it.lines().forEach { line ->
-//                println(line)
-//            }
-//        }
-//    }
-
-
-
-//    val conn = url.openConnection() as HttpURLConnection
-
-
-//    conn.requestMethod = "GET"
-
-//    BufferedReader(InputStreamReader(conn.inputStream)).use { br ->
-//        var line: String?
-//        while (br.readLine().also { line = it } != null) {
-//            println(line)
-//        }
-//    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        var id: Int = intent.getIntExtra("Id", -1)
         setContentView(R.layout.activity_recipe_details)
 
-//        if (supportActionBar != null) {
-//            supportActionBar!!.hide()
-//        }
-
-        val apiResponse = url.readText()
-        var gson = Gson()
-
-//        val data = gson.fromJson(apiResponse , )
+        getIngredients(id)
+        getRecipe(id)
 
 
         val textView = findViewById<MultiAutoCompleteTextView>(R.id.search_text)
         val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1
-            , days)
+            , All_ingredients.ingredientNames)
         textView.setAdapter(adapter)
         textView.threshold = 1
         textView.setTokenizer(MultiAutoCompleteTextView.CommaTokenizer())
@@ -133,38 +109,116 @@ class RecipeDetails : YouTubeBaseActivity() {
             startActivity(intent);
         }
 
-        val ytPLayer = findViewById<YouTubePlayerView>(R.id.ytPlayer)
+    }
 
+
+    fun setVideo(vid_id: String) {
+        var vid = "dQw4w9WgXcQ"
+        if (vid_id != null) {
+            vid = vid_id
+        }
+        val ytPLayer = findViewById<YouTubePlayerView>(R.id.ytPlayer)
         ytPlayerInit = object : YouTubePlayer.OnInitializedListener {
             override fun onInitializationSuccess(
                 provider: YouTubePlayer.Provider?,
                 player: YouTubePlayer?,
                 p2: Boolean
             ) {
-                Log.i("YT" , "Video about to be loaded!")
-                player?.loadVideo("dQw4w9WgXcQ")
-                Log.i("YT" , "Video loaded!")
+                player?.loadVideo(vid)
                 player?.play()
-                Log.i("YT" , "Video Played!")
             }
 
             override fun onInitializationFailure(
                 p0: YouTubePlayer.Provider?,
                 p1: YouTubeInitializationResult?
             ) {
-                Log.i("YT" , "Video Initialization Error!")
                 Toast.makeText(this@RecipeDetails, "Video Player Failed", Toast.LENGTH_SHORT)
             }
         }
-
         ytPLayer.initialize(api_key , ytPlayerInit)
-
+        Log.i("ingred" , "video set successfully!")
+        Log.i("ingred" , "video id: " + vid)
     }
-
 
     fun comment(view: View) {
         intent = Intent(this, RecipeDetails::class.java);
         startActivity(intent);
     }
 
+    fun getRecipe(id: Int) {
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://kool.blackab.repl.co/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        val service = retrofit.create(APIinterface::class.java)
+        val call = service.getRecipe(id)
+
+        call.enqueue(object : Callback<List<RecipesItem>> {
+            override fun onResponse(call: Call<List<RecipesItem>>, response: Response<List<RecipesItem>>) {
+                if (response.isSuccessful) {
+                    val recipes = response.body()
+                    Log.i("rec" , "recipes have been fetched!")
+                    if (recipes != null) {
+                        Log.i("rec" , "recipes not null and are being assigned globally!")
+                        var recipe = recipes[0]
+                        findViewById<AppCompatTextView>(R.id.recipe_title).text = recipe.Title
+                        findViewById<TextView>(R.id.recipe_time).text = "Time: " + recipe.Duration.toString() + " minutes"
+                        findViewById<AppCompatTextView>(R.id.recipe_notes).text = recipe.Notes
+                        findViewById<TextView>(R.id.recipe_style).text = "Cuisine: " + recipe.Style
+                        findViewById<TextView>(R.id.recipe_type).text = "Type: " + recipe.Type
+                        findViewById<AppCompatTextView>(R.id.recipe_instructions).text = recipe.Steps
+                        findViewById<RatingBar>(R.id.ratingBar).rating = recipe.Rating.toFloat()
+                        val video = recipe.VID_URL.split("=")[1]
+                        setVideo(video)
+                    }
+                }
+            }
+
+            override fun onFailure(call: Call<List<RecipesItem>>, t: Throwable) {
+                Log.d("rec", "error")
+            }
+
+        })
+    }
+
+    fun getIngredients(id: Int) {
+
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://kool.blackab.repl.co/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        val service = retrofit.create(APIinterface::class.java)
+        val call = service.getRecipeIngredients(id)
+
+        call.enqueue(object : Callback<List<Ingredient>> {
+            override fun onResponse(call: Call<List<Ingredient>>, response: Response<List<Ingredient>>) {
+                if (response.isSuccessful) {
+                    var recipe_ingredients = ""
+                    val ingredients = response.body()
+                    if (ingredients != null) {
+                        Log.i("ingred" , "ingredients for selected recipe not null!")
+                        for (i in 0..ingredients.size - 1) {
+                            if( i == ingredients.size - 1) {
+                                recipe_ingredients += ingredients[i].Name + "."
+                            }
+                            else {
+                                recipe_ingredients += ingredients[i].Name + ", "
+                            }
+                        }
+                    }
+                    findViewById<AppCompatTextView>(R.id.recipe_ingredients).text = recipe_ingredients
+                    Log.i("ingred" , "ingredients for selected recipe set successfully!")
+                    Log.i("ingred", "ingredients for selected recipe: " + recipe_ingredients)
+                }
+            }
+
+            override fun onFailure(call: Call<List<Ingredient>>, t: Throwable) {
+                Log.d("rec", "error")
+            }
+        })
+    }
 }
+
+

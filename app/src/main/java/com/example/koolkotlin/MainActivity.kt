@@ -11,6 +11,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        All_ingredients
+        All_types
+
         if (supportActionBar != null) {
             supportActionBar!!.hide()
         }

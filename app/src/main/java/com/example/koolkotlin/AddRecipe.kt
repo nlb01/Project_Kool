@@ -31,7 +31,7 @@ import kotlin.concurrent.thread
 class AddRecipe : AppCompatActivity() {
     var pickedPhoto :Uri? = null
     var pickedBitMap : Bitmap? = null
-    val days = arrayOf<String>("monday" , "tuesday", "thursday" , "sunnday", "sunday", "sundaaaay")
+//    val days = arrayOf<String>("monday" , "tuesday", "thursday" , "sunnday", "sunday", "sundaaaay")
     private var conn: Connection? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,7 +44,7 @@ class AddRecipe : AppCompatActivity() {
 
         val textView = findViewById<MultiAutoCompleteTextView>(R.id.search_text)
         val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1
-            , days)
+            , All_ingredients.ingredientNames)
         textView.setAdapter(adapter)
         textView.threshold = 1
         textView.setTokenizer(MultiAutoCompleteTextView.CommaTokenizer())

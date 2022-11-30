@@ -1,71 +1,60 @@
 package com.example.koolkotlin
 
+import android.annotation.SuppressLint
 import android.content.Intent
-import android.media.Image
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
-import android.view.View.inflate
-import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.*
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.appcompat.resources.Compatibility.Api21Impl.inflate
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithCache
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Red
-import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat.startActivity
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewTreeLifecycleOwner
 import com.example.koolkotlin.databinding.ActivityHomePageBinding
-//import androidx.compose.ui.viewinterop.AndroidView
-//import androidx.core.content.res.ColorStateListInflaterCompat.inflate
-//import com.example.koolkotlin.databinding.ActivityHomePageBinding
-import com.example.koolkotlin.ui.theme.KoolKotlinTheme
-import com.example.koolkotlin.ui.theme.Main_background
-import com.example.koolkotlin.ui.theme.card_background
+import com.example.koolkotlin.ui.theme.IngredientListViewModel
+import com.example.koolkotlin.ui.theme.RecipeListViewModel
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
+var all_recipes : List<RecipesItem> = ArrayList<RecipesItem>()
+
 class HomePageCompose : ComponentActivity() {
 
-    val days = arrayOf<String>("monday" , "tuesday", "thursday" , "sunnday", "sunday", "sundaaaay")
     private lateinit var binding: ActivityHomePageBinding
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        All_ingredients.setNames()
+        All_types.setNames()
         binding = ActivityHomePageBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        getRecipes()
+
         val textView = findViewById<MultiAutoCompleteTextView>(R.id.search_text)
         val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1
-            , days)
+            , All_ingredients.ingredientNames)
         textView.setAdapter(adapter)
         textView.threshold = 1
         textView.setTokenizer(MultiAutoCompleteTextView.CommaTokenizer())
@@ -122,24 +111,31 @@ class HomePageCompose : ComponentActivity() {
             intent = Intent(this, AddRecipe::class.java);
             startActivity(intent);
         }
+
         addComposeView()
     }
     
 
+    @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
     private fun addComposeView() {
         binding.uiCompose.setContent {
-            setContent()
+                setContent(viewModel = RecipeListViewModel())
         }
     }
 
 }
 
 @Composable
-fun setContent() {
+fun setContent(viewModel: RecipeListViewModel) {
+
     Column {
-        Row(modifier = Modifier.horizontalScroll(rememberScrollState(),enabled = true, reverseScrolling = true, )) {
-            for (i in 1..7) {
-                previewType(type = "Pasta")
+        Row(modifier = Modifier.horizontalScroll(
+            rememberScrollState(),
+            enabled = true,
+            reverseScrolling = true
+        )) {
+            for(type in All_types.typeNames) {
+                previewType(type = type)
                 Spacer(modifier = Modifier.width(5.dp))
             }
         }
@@ -147,38 +143,54 @@ fun setContent() {
         Spacer(modifier = Modifier.height(20.dp))
 
         Column {
-            for (i in 1..7) {
-                getRecipes()
-                PreviewCardArguments()
-                Spacer(modifier = Modifier.height(20.dp))
+            val recipes by viewModel.recipes.collectAsState()
+            all_recipes = recipes
+
+            Log.i("rec", "all recipes is empty while creating columns" + all_recipes.isEmpty().toString())
+            for (recipe in all_recipes) {
+
+                Log.i("rec", recipe.Title)
+                makeIndividualCard(viewModel = IngredientListViewModel(recipe.recipe_id), recipe = recipe)
             }
         }
     }
 }
 
-fun getRecipes() {
-    val retrofit = Retrofit.Builder()
-        .baseUrl("https://kool.blackab.repl.co/")
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
-
-    val service = retrofit.create(APIinterface::class.java)
-    val call = service.getRecipes()
-
-    call.enqueue(object : Callback<List<RecipesItem>> {
-        override fun onResponse(call: Call<List<RecipesItem>>, response: Response<List<RecipesItem>>) {
-            if (response.isSuccessful) {
-                val recipes = response.body()
-                //return recipes
+@Composable
+fun makeIndividualCard(viewModel : IngredientListViewModel , recipe: RecipesItem) {
+    val ingredients by viewModel.ingredients.collectAsState()
+    var ingredientsCombined = ""
+    if(ingredients.size >3) {
+        ingredientsCombined = ingredients[0].Name + ", " + ingredients[1].Name + ", " + ingredients[2].Name + ",... "
+    }
+    else {
+        if(ingredients.size !== 0) {
+            for(i in 0..ingredients.size-1) {
+                if(i == ingredients.size - 1){
+                    ingredientsCombined += ingredients[i].Name + "."
+                }
+                else {
+                    ingredientsCombined += ingredients[i].Name + ", "
+                }
             }
         }
+    }
 
-        override fun onFailure(call: Call<List<RecipesItem>>, t: Throwable) {
-            Log.d("recipe", "error")
-        }
-    })
+    PreviewCard(
+        id = recipe.recipe_id,
+        time = recipe.Duration.toString() + " minutes",
+        Style = recipe.Style,
+        Type = recipe.Type,
+        Ingredients = ingredientsCombined,
+        Title = recipe.Title)
+
+    Spacer(modifier = Modifier.height(20.dp))
 }
 
+//private fun setRecipes(recipes: List<RecipesItem>) {
+//    all_recipes = recipes
+//    Log.i("rec" , "recipes have been assigned globally!")
+//}
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -194,17 +206,18 @@ fun previewType(type: String) {
         onClick = {context.startActivity(Intent(context, HomePageCompose::class.java))}
     ) {
         Text(
-            text = "Pasta",
+            text = type,
             modifier = Modifier
                 .background(colorResource(id = R.color.card_background))
-                .padding(10.dp),)
+                .padding(10.dp),
+        )
     }
 }
 
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun PreviewCard(time: String, Style: String, Type:String, Ingredients: String, Title: String) {
+fun PreviewCard(id: Int , time: String, Style: String, Type:String, Ingredients: String, Title: String) {
 
     val textColor = colorResource(id = R.color.title_color);
     val context = LocalContext.current
@@ -213,7 +226,9 @@ fun PreviewCard(time: String, Style: String, Type:String, Ingredients: String, T
         elevation = 10.dp,
         border = BorderStroke(2.dp , colorResource(R.color.button_outline)),
         onClick = {
-            context.startActivity(Intent(context,RecipeDetails::class.java))
+            var intent = Intent(context, RecipeDetails::class.java)
+            intent.putExtra("Id" , id)
+            context.startActivity(intent)
         }
         ) {
         Column (
@@ -249,7 +264,10 @@ fun PreviewCard(time: String, Style: String, Type:String, Ingredients: String, T
                     Text(text = "Time: " + time , color = textColor)
                     Text(text = "Style: " + Style, color = textColor)
                     Text(text = "Type: " + Type, color = textColor)
-                    Text(text = "Ingredients: " + Ingredients, color = textColor)
+                    Text(text = "Ingredients: " + Ingredients, color = textColor,
+                        modifier = Modifier.fillMaxWidth(),
+                        maxLines = 1
+                    )
                 }
             }
 
@@ -279,12 +297,11 @@ fun PreviewCard(time: String, Style: String, Type:String, Ingredients: String, T
 }
 
 
-@Composable
-fun PreviewCardArguments( time: String, Style: String, Type:String, Ingredients: String, Title: String) {
-    PreviewCard(time = "30 minutes", Style = "Italian", Type = "Pasta", Ingredients = "Penne Pasta, Chicken,...", Title = "Homemade Spicy Kung Pao Chicken Noodles")
-}
+//@Composable
+//fun PreviewCardArguments() {
+//    PreviewCard(time = "30 minutes", Style = "Italian", Type = "Pasta", Ingredients = "Penne Pasta, Chicken,...", Title = "Homemade Spicy Kung Pao Chicken Noodles")
+//}
 
-//function to get the data from the endpoint
 
 
 

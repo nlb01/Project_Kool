@@ -43,7 +43,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:maxHeight="35dp"
-                android:text="@string/test_title"
+                android:id="@+id/recipe_title"
                 android:textColor="@color/title_color"
                 android:layout_marginBottom="7dp"
                 android:layout_marginTop="10dp"
@@ -58,25 +58,24 @@
                 android:layout_marginBottom="10dp">
 
                 <TextView
-                    android:id="@+id/time"
+                    android:id="@+id/recipe_time"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:text="@string/time_test" />
+                     />
 
                 <TextView
-                    android:id="@+id/type"
+                    android:id="@+id/recipe_type"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="@string/type_test" />
+                     />
 
                 <TextView
-                    android:id="@+id/style"
+                    android:id="@+id/recipe_style"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="@string/style_test"
                     android:textAlignment="textEnd" />
             </LinearLayout>
 
@@ -94,8 +93,9 @@
                 android:layout_width="369dp"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
+                android:id="@+id/recipe_ingredients"
                 android:lineSpacingExtra="2sp"
-                android:text="@string/test_ingredients_details" />
+                />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:layout_width="wrap_content"
@@ -110,8 +110,9 @@
                 android:layout_width="369dp"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
+                android:id="@+id/recipe_instructions"
                 android:lineSpacingExtra="2sp"
-                android:text="@string/test_instruction_details" />
+                />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:layout_width="wrap_content"
@@ -125,8 +126,8 @@
             <androidx.appcompat.widget.AppCompatTextView
                 android:layout_width="369dp"
                 android:layout_height="wrap_content"
-                android:text="@string/test_notes_details"
                 android:padding="5dp"
+                android:id="@+id/recipe_notes"
                 android:lineSpacingExtra="2sp"
                 />
 
@@ -150,11 +151,11 @@
 <!--                />-->
 
                 <com.google.android.youtube.player.YouTubePlayerView
-                android:layout_width="350dp"
-                android:layout_height="250dp"
-                android:id="@+id/ytPlayer"
-                android:layout_marginBottom="10dp"
-                android:layout_gravity="center"
+                    android:layout_width="350dp"
+                    android:layout_height="250dp"
+                    android:id="@+id/ytPlayer"
+                    android:layout_marginBottom="10dp"
+                    android:layout_gravity="center"
                     />
 
 <!--            <VideoView-->
