@@ -62,6 +62,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
+                    android:paddingLeft = "2dp"
                      />
 
                 <TextView
@@ -76,7 +77,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:textAlignment="textEnd" />
+                    android:textAlignment="textEnd"
+                    android:paddingRight = "2dp"/>
             </LinearLayout>
 
 
@@ -90,11 +92,11 @@
                 android:textColor="@color/title_color" />
 
             <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/recipe_ingredients"
                 android:layout_width="369dp"
                 android:layout_height="wrap_content"
-                android:padding="5dp"
-                android:id="@+id/recipe_ingredients"
-                android:lineSpacingExtra="2sp"
+                android:padding="10dp"
+                android:lineSpacingExtra="4sp"
                 />
 
             <androidx.appcompat.widget.AppCompatTextView
@@ -107,11 +109,11 @@
                 android:padding="2dp"/>
 
             <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/recipe_instructions"
                 android:layout_width="369dp"
                 android:layout_height="wrap_content"
-                android:padding="5dp"
-                android:id="@+id/recipe_instructions"
-                android:lineSpacingExtra="2sp"
+                android:padding="10dp"
+                android:lineSpacingExtra="4sp"
                 />
 
             <androidx.appcompat.widget.AppCompatTextView
@@ -124,11 +126,11 @@
                 android:padding="2dp"/>
 
             <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/recipe_notes"
                 android:layout_width="369dp"
                 android:layout_height="wrap_content"
-                android:padding="5dp"
-                android:id="@+id/recipe_notes"
-                android:lineSpacingExtra="2sp"
+                android:padding="10dp"
+                android:lineSpacingExtra="4sp"
                 />
 
             <androidx.appcompat.widget.AppCompatTextView
@@ -141,15 +143,6 @@
                 android:padding="2dp"/>
 
 
-<!--            <fragment-->
-<!--                android:name="com.google.android.youtube.player.YouTubePlayerSupportFragment"-->
-<!--                android:layout_width="350dp"-->
-<!--                android:layout_height="250dp"-->
-<!--                android:id="@+id/ytPlayer"-->
-<!--                android:layout_marginBottom="10dp"-->
-<!--                android:layout_gravity="center"-->
-<!--                />-->
-
                 <com.google.android.youtube.player.YouTubePlayerView
                     android:layout_width="350dp"
                     android:layout_height="250dp"
@@ -157,15 +150,6 @@
                     android:layout_marginBottom="10dp"
                     android:layout_gravity="center"
                     />
-
-<!--            <VideoView-->
-<!--                android:id="@+id/vid"-->
-<!--                android:layout_width="350dp"-->
-<!--                android:layout_height="250dp"-->
-<!--                android:layout_marginBottom="10dp"-->
-<!--                android:layout_gravity="center" />-->
-
-
 
         </LinearLayout>
 

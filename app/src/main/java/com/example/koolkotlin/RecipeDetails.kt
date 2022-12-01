@@ -167,7 +167,8 @@ class RecipeDetails : YouTubeBaseActivity() {
                         findViewById<AppCompatTextView>(R.id.recipe_notes).text = recipe.Notes
                         findViewById<TextView>(R.id.recipe_style).text = "Cuisine: " + recipe.Style
                         findViewById<TextView>(R.id.recipe_type).text = "Type: " + recipe.Type
-                        findViewById<AppCompatTextView>(R.id.recipe_instructions).text = recipe.Steps
+                        var instructions = "  *  " + recipe.Steps.replace("\n", "\n  *  ")
+                        findViewById<AppCompatTextView>(R.id.recipe_instructions).text = instructions
                         findViewById<RatingBar>(R.id.ratingBar).rating = recipe.Rating.toFloat()
                         val video = recipe.VID_URL.split("=")[1]
                         setVideo(video)
