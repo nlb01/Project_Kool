@@ -19,24 +19,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewTreeLifecycleOwner
 import com.example.koolkotlin.databinding.ActivityHomePageBinding
 import com.example.koolkotlin.ui.theme.IngredientListViewModel
 import com.example.koolkotlin.ui.theme.RecipeListViewModel
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 
 var all_recipes : List<RecipesItem> = ArrayList<RecipesItem>()
 
@@ -45,7 +34,18 @@ class HomePageCompose : ComponentActivity() {
     private lateinit var binding: ActivityHomePageBinding
 
 
+    lateinit var final_type : String
+
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        var display_type = intent.getStringExtra("type")
+        if(display_type == null) {
+            final_type = "none"
+        }
+        else {
+            final_type = display_type as String
+        }
+
         super.onCreate(savedInstanceState)
         All_ingredients.setNames()
         All_types.setNames()
@@ -119,7 +119,7 @@ class HomePageCompose : ComponentActivity() {
     @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
     private fun addComposeView() {
         binding.uiCompose.setContent {
-                setContent(viewModel = RecipeListViewModel())
+                setContent(viewModel = RecipeListViewModel(final_type))
         }
     }
 
@@ -203,7 +203,11 @@ fun previewType(type: String) {
         modifier = Modifier.padding(10.dp),
         shape = CircleShape,
         border = BorderStroke(2.dp , colorResource(R.color.title_color)),
-        onClick = {context.startActivity(Intent(context, HomePageCompose::class.java))}
+        onClick = {
+            var intent = Intent(context, HomePageCompose::class.java)
+            intent.putExtra("type" , type)
+            context.startActivity(intent)
+        }
     ) {
         Text(
             text = type,
@@ -263,7 +267,7 @@ fun PreviewCard(id: Int , time: String, Style: String, Type:String, Ingredients:
                 Column {
                     Text(text = "Time: " + time , color = textColor)
                     Text(text = "Style: " + Style, color = textColor)
-                    Text(text = "Type: " + Type, color = textColor)
+                    Text(text = "Cuisine: " + Type, color = textColor)
                     Text(text = "Ingredients: " + Ingredients, color = textColor,
                         modifier = Modifier.fillMaxWidth(),
                         maxLines = 1

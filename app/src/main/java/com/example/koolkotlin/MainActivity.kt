@@ -18,12 +18,10 @@ class MainActivity : AppCompatActivity() {
             supportActionBar!!.hide()
         }
 
-//        val db = DBhelper(this, null)
-//
-//        Toast.makeText(this, "Database Created and Populated", Toast.LENGTH_SHORT).show()
-
         Handler().postDelayed({
             intent = Intent(this, HomePageCompose::class.java);
+            intent.putExtra("type", "none")
+            intent.putExtra("bookdmark" , false)
             startActivity(intent);}
          , 3000);
 

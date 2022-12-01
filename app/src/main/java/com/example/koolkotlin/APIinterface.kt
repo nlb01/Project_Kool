@@ -7,21 +7,36 @@ import retrofit2.http.Query
 
 interface APIinterface {
 
+    //Get All Recipes
     @GET("recipes")
     fun getRecipes(): Call<List<RecipesItem>>
 
+    //Get all Types
     @GET("types")
     fun getTypes(): Call<List<Type>>
 
+
+    //Get Ingredient with Id {id}
     @GET("ingredients?ingredient_id={id}")
     fun getIngredient(@Path("id") id: Int): Call<List<Ingredient>>
 
+
+    //Get Recipe with Id {id}
     @GET("recipes")
     fun getRecipe(@Query("recipe_id") id: Int): Call<List<RecipesItem>>
 
+
+    //Get all Ingredients
     @GET("ingredients")
     fun getIngredients(): Call<List<Ingredient>>
 
+
+    //Get all Ingredients of Recipe with Id {id}
     @GET("ingredients/{recipe_id}")
     fun getRecipeIngredients(@Path("recipe_id") recipe_id: Int): Call<List<Ingredient>>
+
+
+    //Get all Recipes of Type {type}
+    @GET("recipes/{type}")
+    fun getTypeRecipes(@Path("type") type: String): Call<List<RecipesItem>>
 }
