@@ -145,6 +145,10 @@ class RecipeDetails : YouTubeBaseActivity() {
         startActivity(intent);
     }
 
+    fun saveRecipe() {
+
+    }
+
     fun getRecipe(id: Int) {
         val retrofit = Retrofit.Builder()
             .baseUrl("https://kool.blackab.repl.co/")
