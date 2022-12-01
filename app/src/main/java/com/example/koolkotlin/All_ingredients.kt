@@ -19,6 +19,15 @@ object All_ingredients {
         setIngredients()
     }
 
+    fun getIngredientId(name :String) : Int  {
+        var result = -1
+        for (ingredient in all_ingredients) {
+            if (ingredient.Name == name)
+                return ingredient.Ingredient_id
+        }
+        return result
+    }
+
     fun setIngredientNames() : ArrayList<String> {
         val names = ArrayList<String>()
         Log.i("ingred" , "all ingredients empty or null !" + all_ingredients.isEmpty().toString())

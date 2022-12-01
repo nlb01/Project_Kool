@@ -16,7 +16,7 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-class RecipeListViewModel(type :String) :ViewModel() {
+class RecipeListViewModel(type :String , ingredList: List<Int>) :ViewModel() {
 
 //    private val _recipes: MutableLiveData<List<RecipesItem>> = MutableLiveData()
     private val _recipes = MutableStateFlow<List<RecipesItem>>(emptyList())
@@ -33,10 +33,16 @@ class RecipeListViewModel(type :String) :ViewModel() {
             val service = retrofit.create(APIinterface::class.java)
 
             var call : Call<List<RecipesItem>>
-            if(type == "none")
-                call = service.getRecipes()
-            else
+
+            if(type != "none") {
                 call = service.getTypeRecipes(type)
+            }
+            else if(ingredList != listOf(-1)) {
+                call = service.getRecipesWithIngredients(ingredList)
+            }
+            else
+                call = service.getRecipes()
+
 
             call.enqueue(object : Callback<List<RecipesItem>> {
                 override fun onResponse(call: Call<List<RecipesItem>>, response: Response<List<RecipesItem>>) {

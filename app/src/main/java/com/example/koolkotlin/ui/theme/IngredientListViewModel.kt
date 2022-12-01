@@ -33,9 +33,6 @@ class IngredientListViewModel(recipeId : Int) :ViewModel() {
 
             call.enqueue(object : Callback<List<Ingredient>> {
 
-//                override fun onFailure(call: Call<List<RecipesItem>>, t: Throwable) {
-//                    Log.d("rec", "error")
-//                }
 
                 override fun onResponse(call: Call<List<Ingredient>>, response: Response<List<Ingredient>>) {
                     if (response.isSuccessful) {

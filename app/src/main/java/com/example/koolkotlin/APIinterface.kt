@@ -39,4 +39,8 @@ interface APIinterface {
     //Get all Recipes of Type {type}
     @GET("recipes/{type}")
     fun getTypeRecipes(@Path("type") type: String): Call<List<RecipesItem>>
+
+    //Get Recipes with Ingredients {id1,id2,id3,...}
+    @GET("recipes/ingredients")
+    fun getRecipesWithIngredients(@Query("ingredients") ingredients: List<Int>): Call<List<RecipesItem>>
 }

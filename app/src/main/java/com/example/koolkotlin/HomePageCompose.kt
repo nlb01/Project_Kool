@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
 import android.view.animation.AnimationUtils
@@ -26,6 +27,13 @@ import androidx.compose.ui.unit.dp
 import com.example.koolkotlin.databinding.ActivityHomePageBinding
 import com.example.koolkotlin.ui.theme.IngredientListViewModel
 import com.example.koolkotlin.ui.theme.RecipeListViewModel
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import java.util.*
+import kotlin.collections.ArrayList
 
 var all_recipes : List<RecipesItem> = ArrayList<RecipesItem>()
 
@@ -33,17 +41,28 @@ class HomePageCompose : ComponentActivity() {
 
     private lateinit var binding: ActivityHomePageBinding
 
-
     lateinit var final_type : String
+    lateinit var ingredList : List<Int>
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        var search_ingredients : MutableList<String> = ArrayList<String>()
 
+        var ingredientIds = intent.getIntArrayExtra("ingredList")
         var display_type = intent.getStringExtra("type")
+
         if(display_type == null) {
             final_type = "none"
         }
         else {
             final_type = display_type as String
+        }
+
+        if(ingredientIds == null) {
+            ingredList = listOf(-1)
+        }
+        else {
+//            Arrays.stream(ints).boxed().toList()
+            ingredList = ingredientIds.toCollection(ArrayList())
         }
 
         super.onCreate(savedInstanceState)
@@ -56,8 +75,36 @@ class HomePageCompose : ComponentActivity() {
         val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1
             , All_ingredients.ingredientNames)
         textView.setAdapter(adapter)
+        textView.setOnItemClickListener { parent, view, position, id ->
+            search_ingredients.add(parent.getItemAtPosition(position).toString())
+        }
+
         textView.threshold = 1
         textView.setTokenizer(MultiAutoCompleteTextView.CommaTokenizer())
+
+        textView.setOnKeyListener( View.OnKeyListener { v, keyCode, event ->
+            if(keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
+
+                var recipe_ingredients : MutableList<Int> = ArrayList<Int>()
+                for (ingred in  search_ingredients) {
+                    var id = All_ingredients.getIngredientId(ingred)
+                    if(id != -1) {
+                        recipe_ingredients.add(id)
+                    }
+                }
+
+                intent = Intent(this, HomePageCompose::class.java);
+                intent.putExtra("ingredList" , recipe_ingredients.toIntArray())
+                intent.putExtra("bookMark", false)
+                intent.putExtra("type", "none")
+                startActivity(intent);
+
+                return@OnKeyListener true
+            }
+            false
+        }
+        )
+
 
         val add = findViewById<ImageButton>(R.id.add)
         val bookMark = findViewById<ImageButton>(R.id.bookMark)
@@ -119,10 +166,9 @@ class HomePageCompose : ComponentActivity() {
     @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
     private fun addComposeView() {
         binding.uiCompose.setContent {
-                setContent(viewModel = RecipeListViewModel(final_type))
+                setContent(viewModel = RecipeListViewModel(final_type , ingredList))
         }
     }
-
 }
 
 @Composable
@@ -187,10 +233,6 @@ fun makeIndividualCard(viewModel : IngredientListViewModel , recipe: RecipesItem
     Spacer(modifier = Modifier.height(20.dp))
 }
 
-//private fun setRecipes(recipes: List<RecipesItem>) {
-//    all_recipes = recipes
-//    Log.i("rec" , "recipes have been assigned globally!")
-//}
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -299,19 +341,4 @@ fun PreviewCard(id: Int , time: String, Style: String, Type:String, Ingredients:
     }
 
 }
-
-
-//@Composable
-//fun PreviewCardArguments() {
-//    PreviewCard(time = "30 minutes", Style = "Italian", Type = "Pasta", Ingredients = "Penne Pasta, Chicken,...", Title = "Homemade Spicy Kung Pao Chicken Noodles")
-//}
-
-
-
-
-
-
-
-
-
 

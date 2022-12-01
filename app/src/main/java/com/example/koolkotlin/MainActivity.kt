@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.widget.Toast
+import java.util.ArrayList
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,9 +20,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         Handler().postDelayed({
+            val ingreds = listOf(-1)
             intent = Intent(this, HomePageCompose::class.java);
             intent.putExtra("type", "none")
             intent.putExtra("bookdmark" , false)
+            intent.putExtra("ingredList", ingreds.toIntArray())
             startActivity(intent);}
          , 3000);
 
