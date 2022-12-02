@@ -2,6 +2,8 @@ package com.example.koolkotlin
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.Log
 import android.view.KeyEvent
@@ -19,6 +21,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -222,7 +225,17 @@ fun makeIndividualCard(viewModel : IngredientListViewModel , recipe: RecipesItem
         }
     }
 
+    val db_pic = recipe.IMG.data
+    val bite = ArrayList<Byte>()
+    for(num in db_pic) {
+        val num_byte = num.toByte()
+        bite.add(num_byte)
+    }
+    val byte_arr = bite.toByteArray()
+    val bitmap = BitmapFactory.decodeByteArray(byte_arr , 0 , byte_arr.size)
+
     PreviewCard(
+        bit = bitmap,
         id = recipe.recipe_id,
         time = recipe.Duration.toString() + " minutes",
         Style = recipe.Style,
@@ -263,7 +276,7 @@ fun previewType(type: String) {
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun PreviewCard(id: Int , time: String, Style: String, Type:String, Ingredients: String, Title: String) {
+fun PreviewCard(bit: Bitmap, id: Int, time: String, Style: String, Type:String, Ingredients: String, Title: String) {
 
     val textColor = colorResource(id = R.color.title_color);
     val context = LocalContext.current
@@ -286,7 +299,8 @@ fun PreviewCard(id: Int , time: String, Style: String, Type:String, Ingredients:
                 ){
             Row { Modifier.padding(all = 8.dp)
                 Image (
-                    painter = painterResource(id = R.drawable.pasta),
+                    bitmap = bit.asImageBitmap(),
+//                    painter = painterResource(id = R.drawable.pasta),
                     contentDescription = Title,
                     modifier = Modifier
                         .size(80.dp)

@@ -1,14 +1,17 @@
 package com.example.koolkotlin
 
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Base64
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.animation.AnimationUtils
 import android.widget.*
+import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -36,11 +39,13 @@ class RecipeDetails : YouTubeBaseActivity() {
     val api_key = "AIzaSyCH9vxYf1w9z7XxsFmaMLy8uJImEikYU_c"
 
     lateinit var ytPlayerInit : YouTubePlayer.OnInitializedListener
-
+    lateinit var ingredients : List<Ingredient>
+    lateinit var recipe : RecipesItem
     val url = URL("https://kool.blackab.repl.co/ingredients")
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
         var id: Int = intent.getIntExtra("Id", -1)
         setContentView(R.layout.activity_recipe_details)
@@ -165,7 +170,18 @@ class RecipeDetails : YouTubeBaseActivity() {
                     Log.i("rec" , "recipes have been fetched!")
                     if (recipes != null) {
                         Log.i("rec" , "recipes not null and are being assigned globally!")
-                        var recipe = recipes[0]
+                        recipe = recipes[0]
+                        val recipe_picture = findViewById<AppCompatImageView>(R.id.recipe_pic)
+                        val db_pic = recipe.IMG.data
+                        val bite = ArrayList<Byte>()
+                        for(num in db_pic) {
+                            val num_byte = num.toByte()
+                            bite.add(num_byte)
+                        }
+                        val byte_arr = bite.toByteArray()
+                        Log.i("pic", "It is converted to bytes Array " + byte_arr)
+                        val bitmap = BitmapFactory.decodeByteArray(byte_arr , 0 , byte_arr.size)
+                        Log.i("pic", "It is converted to a bitmap " + bitmap)
                         findViewById<AppCompatTextView>(R.id.recipe_title).text = recipe.Title
                         findViewById<TextView>(R.id.recipe_time).text = "Time: " + recipe.Duration.toString() + " minutes"
                         findViewById<AppCompatTextView>(R.id.recipe_notes).text = recipe.Notes
@@ -174,6 +190,8 @@ class RecipeDetails : YouTubeBaseActivity() {
                         var instructions = "  *  " + recipe.Steps.replace("\n", "\n  *  ")
                         findViewById<AppCompatTextView>(R.id.recipe_instructions).text = instructions
                         findViewById<RatingBar>(R.id.ratingBar).rating = recipe.Rating.toFloat()
+                        recipe_picture.setImageBitmap(bitmap)
+                        Log.i("pic", "resource set to bitmap ")
                         val video = recipe.VID_URL.split("=")[1]
                         setVideo(video)
                     }
@@ -201,9 +219,8 @@ class RecipeDetails : YouTubeBaseActivity() {
             override fun onResponse(call: Call<List<Ingredient>>, response: Response<List<Ingredient>>) {
                 if (response.isSuccessful) {
                     var recipe_ingredients = ""
-                    val ingredients = response.body()
+                    ingredients = response.body()!!
                     if (ingredients != null) {
-                        Log.i("ingred" , "ingredients for selected recipe not null!")
                         for (i in 0..ingredients.size - 1) {
                             if( i == ingredients.size - 1) {
                                 recipe_ingredients += ingredients[i].Name + "."
@@ -214,8 +231,6 @@ class RecipeDetails : YouTubeBaseActivity() {
                         }
                     }
                     findViewById<AppCompatTextView>(R.id.recipe_ingredients).text = recipe_ingredients
-                    Log.i("ingred" , "ingredients for selected recipe set successfully!")
-                    Log.i("ingred", "ingredients for selected recipe: " + recipe_ingredients)
                 }
             }
 
