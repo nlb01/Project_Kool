@@ -6,6 +6,7 @@ import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import android.util.Log
 import androidx.core.content.contentValuesOf
 import java.util.prefs.PreferencesFactory
 
@@ -14,39 +15,38 @@ class DBhelper (context: Context, factory: SQLiteDatabase.CursorFactory?) : SQLi
     //Create all the tables { Recipes Table , Ingredients Table , Comments Table ,
     // Recipe - Ingredients Table , Recipe - Comments Table }
     override fun onCreate(db: SQLiteDatabase?) {
-        val query1 = ("CREATE TABLE " + Ingredients_Table + " ("
-                + in_ingred_id + " int PRIMARY KEY AUTO_INCREMENT, " +
-                in_ingred_name + " TEXT" + ")")
+        val query1 = "CREATE TABLE " + Ingredients_Table + " ( " + in_ingred_id + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                in_ingred_name + " TEXT );"
 
         val query2 = ("CREATE TABLE " + Comments_Table + " ("
-                + com_comment_id + " int PRIMARY KEY AUTO_INCREMENT, " +
-                com_comment_content + " TEXT" + ")")
+                + com_comment_id + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                com_comment_content + " TEXT" + ");")
 //
         val query3 = ("CREATE TABLE " + Recipe_Table + " ("
-                + rec_recipe_id + " int PRIMARY KEY AUTO_INCREMENT, " +
-                rec_recipe_duration + " INT," +
+                + rec_recipe_id + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                rec_recipe_duration + " INTEGER," +
                 rec_recipe_img + " TEXT," +
                 rec_recipe_notes + " TEXT," +
-                rec_recipe_rating + " INT," +
+                rec_recipe_rating + " INTEGER," +
                 rec_recipe_steps + " TEXT," +
                 rec_recipe_style + " TEXT," +
                 rec_recipe_title + " TEXT," +
                 rec_recipe_type + " TEXT," +
-                rec_recipe_vid + " TEXT," +")")
+                rec_recipe_vid + " TEXT" +");")
 
         val query4 = ("CREATE TABLE " + Recipe_Comments_Table + " ("
-                + rc_comment_id + " int , " +
-                rc_recipe_id + " int" + "," +
-                "Foreign Key " + rc_comment_id + "References " + Comments_Table + "(" + com_comment_id + ")" +
-                "Foreign Key " + rc_recipe_id + "References " + Recipe_Table + "(" + rec_recipe_id + ")" +
-                "Primary Key ("+ rc_comment_id +  ", "  + rc_recipe_id + "))")
+                + rc_comment_id + " INTEGER, " +
+                rc_recipe_id + " INTEGER" + "," +
+                "FOREIGN KEY (" + rc_comment_id + ") References " + Comments_Table + "(" + com_comment_id + "), " +
+                "Foreign Key (" + rc_recipe_id + ") References " + Recipe_Table + "(" + rec_recipe_id + "), " +
+                "Primary Key ("+ rc_comment_id +  ", "  + rc_recipe_id + "));")
 
         val query5 = ("CREATE TABLE " + Recipe_Ingredients_Table + " ("
-                + ri_ingredient_id + " int , " +
-                ri_recipe_id + " int" + "," +
-                "Foreign Key " + ri_ingredient_id + "References " + Ingredients_Table + "(" + in_ingred_id + ")" +
-                "Foreign Key " + ri_recipe_id + "References " + Recipe_Table + "(" + rec_recipe_id + ")" +
-                "Primary Key ("+ ri_ingredient_id +  ", "  + ri_recipe_id + "))")
+                + ri_ingredient_id + " INTEGER , " +
+                ri_recipe_id + " INTEGER" + "," +
+                "Foreign Key (" + ri_ingredient_id + ") References " + Ingredients_Table + "(" + in_ingred_id + "), " +
+                "Foreign Key (" + ri_recipe_id + ") References " + Recipe_Table + "(" + rec_recipe_id + "), " +
+                "Primary Key ("+ ri_ingredient_id +  ", "  + ri_recipe_id + "));")
 
         // we are calling sqlite
         // method for executing our query
@@ -113,7 +113,8 @@ class DBhelper (context: Context, factory: SQLiteDatabase.CursorFactory?) : SQLi
 
 
     //Add a recipe to the database -- Takes in a recipe Item and the recipe's ingredints list as List<Ingredient>
-    fun addRecipe(db:SQLiteDatabase , rec : RecipesItem, ingredients: List<Ingredient> , comments: List<Comment>) {
+    fun addRecipe(rec : RecipesItem, ingredients: List<Ingredient> , comments: List<Comment>) {
+        val db = this.writableDatabase
         val values = ContentValues()
         values.put(rec_recipe_duration, rec.Duration)
         values.put(rec_recipe_notes, rec.Notes)
@@ -126,62 +127,65 @@ class DBhelper (context: Context, factory: SQLiteDatabase.CursorFactory?) : SQLi
         values.put(rec_recipe_vid, rec.VID_URL)
         db.insert(Recipe_Table , null, values)
 
-        val rec_id = getRecipeId(db , rec.Title)
+        val rec_id = getRecipeId(rec.Title)
 
-        addRecipeIngredients(db, rec_id , ingredients)
-        addRecipeComments(db, rec_id ,  comments)
+        addRecipeIngredients(rec_id , ingredients)
+        addRecipeComments(rec_id ,  comments)
+
+        db.close()
     }
 
 
     //Add Ingredients of a recipe to Ingredients Table if not there already & to The Recipe - Ingredients Table
     //Takes as parameters Id of the recipe in the Recipe Table, List of ingredients of the Recipe as List<Ingredient>
-    fun addRecipeIngredients(db:SQLiteDatabase , rec_id : Int, ingredients: List<Ingredient>) {
+    fun addRecipeIngredients(rec_id : Int, ingredients: List<Ingredient>) {
+        val db = this.writableDatabase
         for (ingred in ingredients) {
-            if(!ingredInTable(ingred.Name , db)) {
-                addIngredient(db , ingred.Name)
+            if(!ingredInTable(ingred.Name)) {
+                addIngredient(ingred.Name)
             }
-            val ingred_id = getIngredientId(ingred.Name , db)
+            val ingred_id = getIngredientId(ingred.Name)
             val values = ContentValues()
             values.put(ri_ingredient_id, ingred_id)
             values.put(ri_recipe_id , rec_id)
             db.insert(Recipe_Ingredients_Table, null, values)
         }
 
-        db.close()
     }
 
     //Adds ingredient with name ingred_name to the Ingredients Table
-    fun addIngredient(db: SQLiteDatabase , ingred_name : String){
+    fun addIngredient(ingred_name : String){
+        val db = this.writableDatabase
         val values = ContentValues()
         values.put(in_ingred_name, ingred_name)
         db.insert(Ingredients_Table, null, values)
-        db.close()
+
     }
 
 
     //Add Ingredients of a recipe to Ingredients Table if not there already & to The Recipe - Ingredients Table
     //Takes as parameters Id of the recipe in the Recipe Table, List of ingredients of the Recipe as List<Ingredient>
-    fun addRecipeComments(db:SQLiteDatabase , rec_id : Int, comments: List<Comment>) {
+    fun addRecipeComments(rec_id : Int, comments: List<Comment>) {
+        val db = this.writableDatabase
         for (comment in comments) {
-            if(!commentInTable(comment.comment , db)){
-                addComment(db, comment.comment)
+            if(!commentInTable(comment.comment)){
+                addComment(comment.comment)
             }
-            val comment_id = getCommentId(db, comment.comment)
+            val comment_id = getCommentId(comment.comment)
             val values = ContentValues()
             values.put(rc_recipe_id, rec_id)
             values.put(rc_comment_id , comment_id)
             db.insert(Recipe_Comments_Table, null, values)
         }
 
-        db.close()
     }
 
     //Adds comment with content name to the Comments Table
-    fun addComment(db: SQLiteDatabase , name : String) {
+    fun addComment(name : String) {
+        val db = this.writableDatabase
         val values = ContentValues()
         values.put(com_comment_content, name)
         db.insert(Comments_Table, null, values)
-        db.close()
     }
 
 
@@ -190,15 +194,17 @@ class DBhelper (context: Context, factory: SQLiteDatabase.CursorFactory?) : SQLi
     //Returns all Recipes in the database
     //Output -> List of Recipes (A recipe is of type <List<String>>
     @SuppressLint("Range")
-    fun getAllRecipes(db:SQLiteDatabase): ArrayList<List<String>> {
+    fun getAllRecipes(): ArrayList<List<String>> {
+        val db = this.readableDatabase
         val out = ArrayList<List<String>>()
         val query = "Select $rec_recipe_id From " + Recipe_Table
         val cursor : Cursor = db.rawQuery(query , null)
 
         while (cursor.moveToNext()){
-            val recipe = getRecipe(cursor.getInt(0), false , db)
+            val recipe = getRecipe(cursor.getInt(0), false)
             out.add(recipe)
         }
+        Log.i("db" , "Function getAllBookmareked Recipes successfully returned")
         return out
     }
 
@@ -209,8 +215,9 @@ class DBhelper (context: Context, factory: SQLiteDatabase.CursorFactory?) : SQLi
     //-> detail: Boolean that returns all attributes of the recipes when true
     //              and returns only (title, img, type, style, duration, three ingredients) when false
     @SuppressLint("Range")
-    fun getRecipe(id: Int, detail : Boolean, db : SQLiteDatabase) : List<String> {
-        val query = "Select From $Recipe_Table Where $rec_recipe_id = $id"
+    fun getRecipe(id: Int, detail : Boolean ) : List<String> {
+        val db = this.readableDatabase
+        val query = "Select * From $Recipe_Table Where $rec_recipe_id = $id"
         val cursor : Cursor = db.rawQuery(query , null)
         cursor.moveToFirst()
         var recipe = ArrayList<String>()
@@ -220,7 +227,7 @@ class DBhelper (context: Context, factory: SQLiteDatabase.CursorFactory?) : SQLi
         val style = cursor.getString(cursor.getColumnIndex("rec_style"))
         val img = cursor.getString(cursor.getColumnIndex("rec_img"))
 
-        val recipe_ingredients = getRecipeIngredients(id, db, detail)
+        val recipe_ingredients = getRecipeIngredients(id, detail)
         val ingredients = ingredientsToString(recipe_ingredients)
 
         recipe.add(title)
@@ -229,6 +236,7 @@ class DBhelper (context: Context, factory: SQLiteDatabase.CursorFactory?) : SQLi
         recipe.add(style)
         recipe.add(img)
         recipe.add(ingredients)
+        recipe.add(id.toString())
 
         if(!detail) {
             return recipe
@@ -247,11 +255,28 @@ class DBhelper (context: Context, factory: SQLiteDatabase.CursorFactory?) : SQLi
     }
 
     //Get Id of the recipe with Recipe Title recipe_title
-    fun getRecipeId(db: SQLiteDatabase , recipe_title : String) : Int {
-        val query = "Select " + rec_recipe_id + " From "+  Recipe_Table + " Where " + rec_recipe_title + " Like \"$recipe_title%\" "
+    fun getRecipeId(recipe_title : String) : Int {
+        val db = this.readableDatabase
+        val query = "Select " + rec_recipe_id + " From "+  Recipe_Table + " Where " + rec_recipe_title + " Like '$recipe_title' "
         val cursor : Cursor = db.rawQuery(query,  null)
         cursor.moveToFirst()
-        return cursor.getInt(0)
+        val out = cursor.getInt(0)
+        cursor.close()
+        return out
+    }
+
+    @SuppressLint("Range")
+    fun getAllIngredients() : ArrayList<String>{
+        val db = this.readableDatabase
+        val lis = ArrayList<String>()
+        val query = "Select * From $Ingredients_Table"
+
+        val cursor : Cursor = db.rawQuery(query , null)
+        while (cursor.moveToNext()) {
+            val name = cursor.getString(cursor.getColumnIndex("ingred_name"))
+            lis.add(name)
+        }
+        return lis
     }
 
     //Get ingredients of a specific recipe
@@ -259,7 +284,8 @@ class DBhelper (context: Context, factory: SQLiteDatabase.CursorFactory?) : SQLi
     //-> rec_id : int is recipe's id in the Recipes Table
     //-> detail: Boolean which returns only three ingredients when false and all ingredients when set to true
     @SuppressLint("Range")
-    fun getRecipeIngredients(rec_id: Int, db:SQLiteDatabase, detail : Boolean) : List<String> {
+    fun getRecipeIngredients(rec_id: Int, detail : Boolean) : List<String> {
+        val db = this.readableDatabase
         val query = "Select $ri_ingredient_id From $Recipe_Ingredients_Table Where $ri_recipe_id = $rec_id"
         val ingred_list = ArrayList<String>()
         val cursor : Cursor = db.rawQuery(query, null)
@@ -269,31 +295,37 @@ class DBhelper (context: Context, factory: SQLiteDatabase.CursorFactory?) : SQLi
                 break
             }
             val id = cursor.getInt(cursor.getColumnIndex("igredient_id"))
-            ingred_list.add(getIngredientName(id, db))
+            ingred_list.add(getIngredientName(id))
         }
         return ingred_list
     }
 
     //Get Id of the ingredient with name : name
-    fun getIngredientId(name:String , db : SQLiteDatabase) : Int {
-        val query = "Select" + in_ingred_id + "From Ingredients Where " + in_ingred_name + " Like \"$name%\" "
+    fun getIngredientId(name:String) : Int {
+        val db = this.readableDatabase
+        val query = "Select " + in_ingred_id + " From Ingredients Where " + in_ingred_name + " Like \'$name\' "
         val cursor : Cursor = db.rawQuery(query,  null)
         cursor.moveToFirst()
-        return cursor.getInt(0)
+        val out = cursor.getInt(0)
+        cursor.close()
+        return out
     }
 
     //Get Name of the ingredient with id : id
-    fun getIngredientName(id: Int ,  db:SQLiteDatabase) : String {
+    fun getIngredientName(id: Int ) : String {
+        val db = this.readableDatabase
         val query = "Select $in_ingred_name From $Ingredients_Table Where $in_ingred_id = $id"
         val cursor : Cursor = db.rawQuery(query , null)
         cursor.moveToFirst()
-        return cursor.getString(0)
+        val out = cursor.getString(0)
+        return out
     }
 
     //Checks if ingredient with in_name is already stored in Ingredients Table
-    fun ingredInTable(in_name : String, db: SQLiteDatabase) : Boolean {
-        val query = ("SELECT EXISTS(SELECT * from " + Ingredients_Table +  "WHERE " + in_ingred_name +
-                "= '"+ in_name +"')")
+    fun ingredInTable(in_name : String) : Boolean {
+        val db = this.readableDatabase
+        val query = ("SELECT EXISTS(SELECT * from " + Ingredients_Table +  " WHERE " + in_ingred_name +
+                " = '"+ in_name +"')")
         val cursor : Cursor = db.rawQuery(query, null)
         cursor.moveToFirst();
 
@@ -321,24 +353,29 @@ class DBhelper (context: Context, factory: SQLiteDatabase.CursorFactory?) : SQLi
 
 
     //get Id of the comment with content name
-    fun getCommentId(db: SQLiteDatabase , name: String) : Int {
-        val query = "Select" + com_comment_id + "From Comments Where " + com_comment_content + " Like \"$name%\" "
+    fun getCommentId(name: String) : Int {
+        val db = this.readableDatabase
+        val query = "Select " + com_comment_id + " From Comments Where " + com_comment_content + " Like '$name'"
         val cursor : Cursor = db.rawQuery(query,  null)
         cursor.moveToFirst()
-        return cursor.getInt(0)
+        val out = cursor.getInt(0)
+        cursor.close()
+        return out
     }
 
 
     //Checks if comment with in_name is already stored in Comments Table
-    fun commentInTable(in_name : String, db: SQLiteDatabase) : Boolean {
-        val query = ("SELECT EXISTS(SELECT * from " + Comments_Table +  "WHERE " + com_comment_content +
-                "= '"+ in_name +"')")
+    fun commentInTable(in_name : String) : Boolean {
+        val db = this.readableDatabase
+        val query = ("SELECT EXISTS(SELECT * FROM " + Comments_Table +  " WHERE " + com_comment_content +
+                " = '"+ in_name +"')")
         val cursor : Cursor = db.rawQuery(query, null)
         cursor.moveToFirst();
 
         // cursor.getInt(0) is 1 if column with value exists
         if (cursor.getInt(0) == 1) {
             cursor.close();
+            db.close()
             return true;}
 
         cursor.close();

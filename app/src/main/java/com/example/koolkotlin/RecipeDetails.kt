@@ -49,11 +49,20 @@ class RecipeDetails : YouTubeBaseActivity() {
 
         super.onCreate(savedInstanceState)
         var id: Int = intent.getIntExtra("Id", -1)
+        var saved: Boolean = intent.getBooleanExtra("saved", false)
+
+
         setContentView(R.layout.activity_recipe_details)
 
-        getComments(id)
-        getIngredients(id)
-        getRecipe(id)
+        if(saved) {
+
+        }
+        else {
+            getComments(id)
+            getIngredients(id)
+            getRecipe(id)
+        }
+
 
 
         val textView = findViewById<MultiAutoCompleteTextView>(R.id.search_text)
@@ -106,8 +115,8 @@ class RecipeDetails : YouTubeBaseActivity() {
         )
 
         bookMark.setOnClickListener {
-            intent = Intent(this, HomePageCompose::class.java);
-            intent.putExtra("bookMark" , true)
+            Log.i("saved","Going to Bookmarked Activity")
+            intent = Intent(this, Bookmarked::class.java);
             startActivity(intent);
         }
 
@@ -152,8 +161,11 @@ class RecipeDetails : YouTubeBaseActivity() {
         startActivity(intent);
     }
 
-    fun saveRecipe() {
-
+    fun saveRecipe(view: View) {
+        val db = DBhelper(this, null)
+        db.addRecipe(recipe, ingredients, comments)
+        all_bookMarks = db.getAllRecipes()
+        Toast.makeText(this, "Recipe Saved Successfully!!" , Toast.LENGTH_SHORT)
     }
 
     fun getRecipe(id: Int) {
@@ -240,7 +252,6 @@ class RecipeDetails : YouTubeBaseActivity() {
             }
         })
     }
-
 
 
     fun getComments(id: Int) {

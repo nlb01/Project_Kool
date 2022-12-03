@@ -38,75 +38,56 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.*
 import kotlin.collections.ArrayList
 
-var all_bookMarks : List<RecipesItem> = ArrayList<RecipesItem>()
+lateinit var all_bookMarks: List<List<String>>
+
 
 class Bookmarked : ComponentActivity() {
-
     private lateinit var binding: ActivityHomePageBinding
 
-    lateinit var final_type : String
-    lateinit var ingredList : List<Int>
-
     override fun onCreate(savedInstanceState: Bundle?) {
-        var search_ingredients : MutableList<String> = ArrayList<String>()
-
-        var ingredientIds = intent.getIntArrayExtra("ingredList")
-        var display_type = intent.getStringExtra("type")
-
-        if(display_type == null) {
-            final_type = "none"
-        }
-        else {
-            final_type = display_type as String
-        }
-
-        if(ingredientIds == null) {
-            ingredList = listOf(-1)
-        }
-        else {
-//            Arrays.stream(ints).boxed().toList()
-            ingredList = ingredientIds.toCollection(ArrayList())
-        }
-
         super.onCreate(savedInstanceState)
-        All_ingredients.setNames()
-        All_types.setNames()
         binding = ActivityHomePageBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
+        Log.i("saved","Currently in Bookmarked Activity")
         val textView = findViewById<MultiAutoCompleteTextView>(R.id.search_text)
-        val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1
-            , All_ingredients.ingredientNames)
-        textView.setAdapter(adapter)
-        textView.setOnItemClickListener { parent, view, position, id ->
-            search_ingredients.add(parent.getItemAtPosition(position).toString())
-        }
+        textView.setText("SORRY! SEARCH DENIED")
+        textView.isEnabled = false
 
-        textView.threshold = 1
-        textView.setTokenizer(MultiAutoCompleteTextView.CommaTokenizer())
+        //-----------------Disable Search Functionality for Saved Recipes---------------------//
 
-        textView.setOnKeyListener( View.OnKeyListener { v, keyCode, event ->
-            if(keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
 
-                var recipe_ingredients : MutableList<Int> = ArrayList<Int>()
-                for (ingred in  search_ingredients) {
-                    var id = All_ingredients.getIngredientId(ingred)
-                    if(id != -1) {
-                        recipe_ingredients.add(id)
-                    }
-                }
-
-                intent = Intent(this, HomePageCompose::class.java);
-                intent.putExtra("ingredList" , recipe_ingredients.toIntArray())
-                intent.putExtra("bookMark", false)
-                intent.putExtra("type", "none")
-                startActivity(intent);
-
-                return@OnKeyListener true
-            }
-            false
-        }
-        )
+//        val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1
+//            , all_ingredients)
+//        textView.setAdapter(adapter)
+//        textView.setOnItemClickListener { parent, view, position, id ->
+//            search_ingredients.add(parent.getItemAtPosition(position).toString())
+//        }
+//
+//        textView.threshold = 1
+//        textView.setTokenizer(MultiAutoCompleteTextView.CommaTokenizer())
+//
+//        textView.setOnKeyListener( View.OnKeyListener { v, keyCode, event ->
+//            if(keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
+//
+//                var recipe_ingredients : MutableList<Int> = ArrayList<Int>()
+//                for (ingred in  search_ingredients) {
+//                    var id = All_ingredients.getIngredientId(ingred)
+//                    if(id != -1) {
+//                        recipe_ingredients.add(id)
+//                    }
+//                }
+//
+//                intent = Intent(this, HomePageCompose::class.java);
+//                intent.putExtra("ingredList" , recipe_ingredients.toIntArray())
+//                intent.putExtra("bookMark", false)
+//                intent.putExtra("type", "none")
+//                startActivity(intent);
+//
+//                return@OnKeyListener true
+//            }
+//            false
+//        }
+//        )
 
 
         val add = findViewById<ImageButton>(R.id.add)
@@ -152,8 +133,7 @@ class Bookmarked : ComponentActivity() {
         )
 
         bookMark.setOnClickListener {
-            intent = Intent(this, HomePageCompose::class.java);
-            intent.putExtra("bookMark" , true)
+            intent = Intent(this, Bookmarked::class.java);
             startActivity(intent);
         }
 
@@ -169,190 +149,146 @@ class Bookmarked : ComponentActivity() {
     @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
     private fun addComposeView() {
         binding.uiCompose.setContent {
-            setContent(viewModel = RecipeListViewModel(final_type , ingredList))
+            setContentSaved()
         }
     }
 }
-//
-//@Composable
-//fun setContent(viewModel: RecipeListViewModel) {
-//
-//    Column {
-//        Row(modifier = Modifier.horizontalScroll(
-//            rememberScrollState(),
-//            enabled = true,
-//            reverseScrolling = true
-//        )) {
-//            for(type in All_types.typeNames) {
-//                previewType(type = type)
-//                Spacer(modifier = Modifier.width(5.dp))
-//            }
-//        }
-//
-//        Spacer(modifier = Modifier.height(20.dp))
-//
-//        Column {
-//            val recipes by viewModel.recipes.collectAsState()
-//            all_recipes = recipes
-//
-//            Log.i("rec", "all recipes is empty while creating columns" + all_recipes.isEmpty().toString())
-//            for (recipe in all_recipes) {
-//
-//                Log.i("rec", recipe.Title)
-//                makeIndividualCard(viewModel = IngredientListViewModel(recipe.recipe_id), recipe = recipe)
-//            }
-//        }
-//    }
-//}
-
-//@Composable
-//fun makeIndividualCard(viewModel : IngredientListViewModel , recipe: RecipesItem) {
-//    val ingredients by viewModel.ingredients.collectAsState()
-//    var ingredientsCombined = ""
-//    if(ingredients.size >3) {
-//        ingredientsCombined = ingredients[0].Name + ", " + ingredients[1].Name + ", " + ingredients[2].Name + ",... "
-//    }
-//    else {
-//        if(ingredients.size !== 0) {
-//            for(i in 0..ingredients.size-1) {
-//                if(i == ingredients.size - 1){
-//                    ingredientsCombined += ingredients[i].Name + "."
-//                }
-//                else {
-//                    ingredientsCombined += ingredients[i].Name + ", "
-//                }
-//            }
-//        }
-//    }
-//
-//    val db_pic = recipe.IMG!!.data
-//    val bite = ArrayList<Byte>()
-//    for(num in db_pic!!) {
-//        val num_byte = num.toByte()
-//        bite.add(num_byte)
-//    }
-//    val byte_arr = bite.toByteArray()
-//    val bitmap = BitmapFactory.decodeByteArray(byte_arr , 0 , byte_arr.size)
-//
-//    PreviewCard(
-//        bit = bitmap,
-//        id = recipe.recipe_id,
-//        time = recipe.Duration.toString() + " minutes",
-//        Style = recipe.Style,
-//        Type = recipe.Type,
-//        Ingredients = ingredientsCombined,
-//        Title = recipe.Title)
-//
-//    Spacer(modifier = Modifier.height(20.dp))
-//}
 
 
-//@OptIn(ExperimentalMaterialApi::class)
-//@Composable
-//fun previewType(type: String) {
-//
-//    val context = LocalContext.current
-//
-//    Card(
-//        elevation = 10.dp,
-//        modifier = Modifier.padding(10.dp),
-//        shape = CircleShape,
-//        border = BorderStroke(2.dp , colorResource(R.color.title_color)),
-//        onClick = {
-//            var intent = Intent(context, HomePageCompose::class.java)
-//            intent.putExtra("type" , type)
-//            context.startActivity(intent)
-//        }
-//    ) {
-//        Text(
-//            text = type,
-//            modifier = Modifier
-//                .background(colorResource(id = R.color.card_background))
-//                .padding(10.dp),
-//        )
-//    }
-//}
+@Composable
+fun setContentSaved() {
+    Column {
+        Log.i("rec", "all recipes is empty while creating columns" + all_recipes.isEmpty().toString())
+        for (recipe in all_bookMarks) {
 
-//
-//@OptIn(ExperimentalMaterialApi::class)
-//@Composable
-//fun PreviewCard(bit: Bitmap, id: Int, time: String, Style: String, Type:String, Ingredients: String, Title: String) {
-//
-//    val textColor = colorResource(id = R.color.title_color);
-//    val context = LocalContext.current
-//    Card(
-//        shape = RoundedCornerShape(20.dp),
-//        elevation = 10.dp,
-//        border = BorderStroke(2.dp , colorResource(R.color.button_outline)),
-//        onClick = {
-//            var intent = Intent(context, RecipeDetails::class.java)
-//            intent.putExtra("Id" , id)
-//            context.startActivity(intent)
-//        }
-//    ) {
-//        Column (
-//            horizontalAlignment = Alignment.CenterHorizontally,
-//
-//            modifier = Modifier
-//                .background(colorResource(id = R.color.card_background))
-//                .padding(10.dp),
-//        ){
-//            Row { Modifier.padding(all = 8.dp)
-//                Image (
-//                    bitmap = bit.asImageBitmap(),
-////                    painter = painterResource(id = R.drawable.pasta),
-//                    contentDescription = Title,
-//                    modifier = Modifier
-//                        .size(80.dp)
-//                        .clip(CircleShape)
-//
-//                )
-//
-//                Spacer(modifier = Modifier.width(10.dp))
-//
-//                Divider(
-//                    modifier = Modifier
-//                        .height(82.dp)
-//                        .padding(end = 34.dp)
-//                        .width(2.dp)
-//                )
-//
-//                Spacer(modifier = Modifier.width(8.dp))
-//
-//
-//                Column {
-//                    Text(text = "Time: " + time , color = textColor)
-//                    Text(text = "Style: " + Style, color = textColor)
-//                    Text(text = "Cuisine: " + Type, color = textColor)
-//                    Text(text = "Ingredients: " + Ingredients, color = textColor,
-//                        modifier = Modifier.fillMaxWidth(),
-//                        maxLines = 1
-//                    )
-//                }
-//            }
-//
-//
-//            Spacer(modifier = Modifier.height(8.dp))
-//
-//            Divider(
-//                modifier = Modifier
-//                    .height(1.dp)
-//                    .padding(end = 34.dp)
-//                    .fillMaxWidth()
-//            )
-//
-//            Spacer(modifier = Modifier.height(8.dp))
-//
-//            Text(text = Title ,
-//                color = colorResource(id = R.color.title_color) ,
-//                fontWeight = FontWeight.Bold
-//            )
-//
-//
-//        }
-//
-//        Spacer(modifier = Modifier.height(10.dp))
-//    }
-//
-//}
+            Log.i("rec", recipe.toString())
+            makeIndividualCardSaved(recipe)
+        }
+    }
+}
+
+@Composable
+fun makeIndividualCardSaved(recipe : List<String>) {
+
+    val title = recipe[0]
+    val duration = recipe [1]
+    val type = recipe [2]
+    val style = recipe [3]
+    var img = recipe[4].replace("IMG(data=", "")
+    img = img.replace("[" , "")
+    img = img.replace("]" , "")
+    img = img.replace(" " , "")
+    img = img.replace("type=Buffer)" , "")
+    val ingredients = recipe [5]
+    val id = recipe[6]
+
+    val charList = img.split(",")
+    Log.i("saved", "charList : " + charList.toString() )
+    val bite = ArrayList<Byte>()
+    for(num in  charList) {
+        if (num != "") {
+            val num_int = num.toInt()
+            val byte = num_int.toByte()
+            bite.add(byte)
+        }
+    }
+
+    val byte_arr = bite.toByteArray()
+    val bitmap = BitmapFactory.decodeByteArray(byte_arr , 0 , byte_arr.size)
+
+    PreviewCardSaved(
+        bit = bitmap,
+        id = id.toInt(),
+        time = duration + " minutes",
+        Style = style,
+        Type = type,
+        Ingredients = ingredients,
+        Title = title)
+
+    Spacer(modifier = Modifier.height(20.dp))
+}
+
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun PreviewCardSaved(bit: Bitmap, id: Int, time: String, Style: String, Type:String, Ingredients: String, Title: String) {
+
+    val textColor = colorResource(id = R.color.title_color);
+    val context = LocalContext.current
+    Card(
+        shape = RoundedCornerShape(20.dp),
+        elevation = 10.dp,
+        border = BorderStroke(2.dp , colorResource(R.color.button_outline)),
+        onClick = {
+            var intent = Intent(context, RecipeDetails::class.java)
+            intent.putExtra("Id" , id)
+            intent.putExtra("saved" , true)
+            context.startActivity(intent)
+        }
+    ) {
+        Column (
+            horizontalAlignment = Alignment.CenterHorizontally,
+
+            modifier = Modifier
+                .background(colorResource(id = R.color.card_background))
+                .padding(10.dp),
+        ){
+            Row { Modifier.padding(all = 8.dp)
+                Image (
+                    bitmap = bit.asImageBitmap(),
+//                    painter = painterResource(id = R.drawable.pasta),
+                    contentDescription = Title,
+                    modifier = Modifier
+                        .size(80.dp)
+                        .clip(CircleShape)
+
+                )
+
+                Spacer(modifier = Modifier.width(10.dp))
+
+                Divider(
+                    modifier = Modifier
+                        .height(82.dp)
+                        .padding(end = 34.dp)
+                        .width(2.dp)
+                )
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+
+                Column {
+                    Text(text = "Time: " + time , color = textColor)
+                    Text(text = "Style: " + Style, color = textColor)
+                    Text(text = "Cuisine: " + Type, color = textColor)
+                    Text(text = "Ingredients: " + Ingredients, color = textColor,
+                        modifier = Modifier.fillMaxWidth(),
+                        maxLines = 1
+                    )
+                }
+            }
+
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Divider(
+                modifier = Modifier
+                    .height(1.dp)
+                    .padding(end = 34.dp)
+                    .fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(text = Title ,
+                color = colorResource(id = R.color.title_color) ,
+                fontWeight = FontWeight.Bold
+            )
+
+
+        }
+
+        Spacer(modifier = Modifier.height(10.dp))
+    }
+
+}
 

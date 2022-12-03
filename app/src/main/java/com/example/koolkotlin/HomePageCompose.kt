@@ -152,7 +152,7 @@ class HomePageCompose : ComponentActivity() {
         )
 
         bookMark.setOnClickListener {
-            intent = Intent(this, HomePageCompose::class.java);
+            intent = Intent(this, Bookmarked::class.java);
             intent.putExtra("bookMark" , true)
             startActivity(intent);
         }
@@ -287,6 +287,7 @@ fun PreviewCard(bit: Bitmap, id: Int, time: String, Style: String, Type:String, 
         onClick = {
             var intent = Intent(context, RecipeDetails::class.java)
             intent.putExtra("Id" , id)
+            intent.putExtra("saved" , false)
             context.startActivity(intent)
         }
         ) {
