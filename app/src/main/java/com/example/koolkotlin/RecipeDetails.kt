@@ -42,7 +42,7 @@ class RecipeDetails : YouTubeBaseActivity() {
     lateinit var ingredients : List<Ingredient>
     lateinit var comments : List<Comment>
     lateinit var recipe : RecipesItem
-    val url = URL("https://kool.blackab.repl.co/ingredients")
+//    val url = URL("https://kool.blackab.repl.co/ingredients")
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -262,8 +262,8 @@ class RecipeDetails : YouTubeBaseActivity() {
                         Log.i("com" , "comments not null!")
                         if(comments.size >= 2) {
                             Log.i("com" , "comments greater than 2!")
-                            comment1.text = comments[0].comment
-                            comment2.text = comments[1].comment
+                            comment1.text = comments[comments.size-1].comment
+                            comment2.text = comments[comments.size-2].comment
                         }
                         else if(comments.size == 1) {
                             Log.i("com" , "comments greater exactly 1!")
