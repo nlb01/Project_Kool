@@ -10,6 +10,6 @@ data class RecipesItem(
     val Title: String,
     val Type: String,
     val VID_URL: String,
-    val recipe_id: Int
+    var recipe_id: Int
 
 )

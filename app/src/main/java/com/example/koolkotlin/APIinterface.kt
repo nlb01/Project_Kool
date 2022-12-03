@@ -24,6 +24,11 @@ interface APIinterface {
     fun getRecipe(@Query("recipe_id") id: Int): Call<List<RecipesItem>>
 
 
+    //Get Comments of recipe with id {recipe_id}
+    @GET("comments")
+    fun getRecipeComments(@Query("recipe_id") recipe_id: Int): Call<List<Comment>>
+
+
     //Get all Ingredients
     @GET("ingredients")
     fun getIngredients(): Call<List<Ingredient>>

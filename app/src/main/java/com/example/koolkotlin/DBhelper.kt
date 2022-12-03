@@ -1,5 +1,6 @@
 package com.example.koolkotlin
 
+import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
@@ -112,8 +113,7 @@ class DBhelper (context: Context, factory: SQLiteDatabase.CursorFactory?) : SQLi
 
 
     //Add a recipe to the database -- Takes in a recipe Item and the recipe's ingredints list as List<Ingredient>
-
-    fun addRecipe(db:SQLiteDatabase , rec : RecipesItem, ingredients: List<Ingredient>) {
+    fun addRecipe(db:SQLiteDatabase , rec : RecipesItem, ingredients: List<Ingredient> , comments: List<Comment>) {
         val values = ContentValues()
         values.put(rec_recipe_duration, rec.Duration)
         values.put(rec_recipe_notes, rec.Notes)
@@ -129,7 +129,7 @@ class DBhelper (context: Context, factory: SQLiteDatabase.CursorFactory?) : SQLi
         val rec_id = getRecipeId(db , rec.Title)
 
         addRecipeIngredients(db, rec_id , ingredients)
-
+        addRecipeComments(db, rec_id ,  comments)
     }
 
 
@@ -159,17 +159,179 @@ class DBhelper (context: Context, factory: SQLiteDatabase.CursorFactory?) : SQLi
     }
 
 
+    //Add Ingredients of a recipe to Ingredients Table if not there already & to The Recipe - Ingredients Table
+    //Takes as parameters Id of the recipe in the Recipe Table, List of ingredients of the Recipe as List<Ingredient>
+    fun addRecipeComments(db:SQLiteDatabase , rec_id : Int, comments: List<Comment>) {
+        for (comment in comments) {
+            if(!commentInTable(comment.comment , db)){
+                addComment(db, comment.comment)
+            }
+            val comment_id = getCommentId(db, comment.comment)
+            val values = ContentValues()
+            values.put(rc_recipe_id, rec_id)
+            values.put(rc_comment_id , comment_id)
+            db.insert(Recipe_Comments_Table, null, values)
+        }
+
+        db.close()
+    }
+
     //Adds comment with content name to the Comments Table
-    fun addComment(db: SQLiteDatabase , name : String){
+    fun addComment(db: SQLiteDatabase , name : String) {
         val values = ContentValues()
         values.put(com_comment_content, name)
         db.insert(Comments_Table, null, values)
         db.close()
     }
 
+
+    //ALL GETTERS//
+
+    //Returns all Recipes in the database
+    //Output -> List of Recipes (A recipe is of type <List<String>>
+    @SuppressLint("Range")
+    fun getAllRecipes(db:SQLiteDatabase): ArrayList<List<String>> {
+        val out = ArrayList<List<String>>()
+        val query = "Select $rec_recipe_id From " + Recipe_Table
+        val cursor : Cursor = db.rawQuery(query , null)
+
+        while (cursor.moveToNext()){
+            val recipe = getRecipe(cursor.getInt(0), false , db)
+            out.add(recipe)
+        }
+        return out
+    }
+
+
+    //Returns A recipe based on Id
+    //Parameters:
+    //-> ID: int is the recipe's id in Recipe Table
+    //-> detail: Boolean that returns all attributes of the recipes when true
+    //              and returns only (title, img, type, style, duration, three ingredients) when false
+    @SuppressLint("Range")
+    fun getRecipe(id: Int, detail : Boolean, db : SQLiteDatabase) : List<String> {
+        val query = "Select From $Recipe_Table Where $rec_recipe_id = $id"
+        val cursor : Cursor = db.rawQuery(query , null)
+        cursor.moveToFirst()
+        var recipe = ArrayList<String>()
+        val title = cursor.getString(cursor.getColumnIndex("rec_title"))
+        val duration = cursor.getInt(cursor.getColumnIndex("rec_duration"))
+        val type = cursor.getString(cursor.getColumnIndex("rec_type"))
+        val style = cursor.getString(cursor.getColumnIndex("rec_style"))
+        val img = cursor.getString(cursor.getColumnIndex("rec_img"))
+
+        val recipe_ingredients = getRecipeIngredients(id, db, detail)
+        val ingredients = ingredientsToString(recipe_ingredients)
+
+        recipe.add(title)
+        recipe.add(duration.toString())
+        recipe.add(type)
+        recipe.add(style)
+        recipe.add(img)
+        recipe.add(ingredients)
+
+        if(!detail) {
+            return recipe
+        }
+        val steps = cursor.getString(cursor.getColumnIndex("rec_steps"))
+        val notes = cursor.getString(cursor.getColumnIndex("rec_notes"))
+        val vid = cursor.getString(cursor.getColumnIndex("rec_vid"))
+        val rating = cursor.getInt(cursor.getColumnIndex("rec_rating"))
+
+        recipe.add(steps)
+        recipe.add(notes)
+        recipe.add(vid)
+        recipe.add(rating.toString())
+
+        return recipe
+    }
+
+    //Get Id of the recipe with Recipe Title recipe_title
+    fun getRecipeId(db: SQLiteDatabase , recipe_title : String) : Int {
+        val query = "Select " + rec_recipe_id + " From "+  Recipe_Table + " Where " + rec_recipe_title + " Like \"$recipe_title%\" "
+        val cursor : Cursor = db.rawQuery(query,  null)
+        cursor.moveToFirst()
+        return cursor.getInt(0)
+    }
+
+    //Get ingredients of a specific recipe
+    //Parameters:
+    //-> rec_id : int is recipe's id in the Recipes Table
+    //-> detail: Boolean which returns only three ingredients when false and all ingredients when set to true
+    @SuppressLint("Range")
+    fun getRecipeIngredients(rec_id: Int, db:SQLiteDatabase, detail : Boolean) : List<String> {
+        val query = "Select $ri_ingredient_id From $Recipe_Ingredients_Table Where $ri_recipe_id = $rec_id"
+        val ingred_list = ArrayList<String>()
+        val cursor : Cursor = db.rawQuery(query, null)
+        var count = 0
+        while(cursor.moveToNext()) {
+            if(detail == false && count == 3) {
+                break
+            }
+            val id = cursor.getInt(cursor.getColumnIndex("igredient_id"))
+            ingred_list.add(getIngredientName(id, db))
+        }
+        return ingred_list
+    }
+
+    //Get Id of the ingredient with name : name
+    fun getIngredientId(name:String , db : SQLiteDatabase) : Int {
+        val query = "Select" + in_ingred_id + "From Ingredients Where " + in_ingred_name + " Like \"$name%\" "
+        val cursor : Cursor = db.rawQuery(query,  null)
+        cursor.moveToFirst()
+        return cursor.getInt(0)
+    }
+
+    //Get Name of the ingredient with id : id
+    fun getIngredientName(id: Int ,  db:SQLiteDatabase) : String {
+        val query = "Select $in_ingred_name From $Ingredients_Table Where $in_ingred_id = $id"
+        val cursor : Cursor = db.rawQuery(query , null)
+        cursor.moveToFirst()
+        return cursor.getString(0)
+    }
+
     //Checks if ingredient with in_name is already stored in Ingredients Table
     fun ingredInTable(in_name : String, db: SQLiteDatabase) : Boolean {
         val query = ("SELECT EXISTS(SELECT * from " + Ingredients_Table +  "WHERE " + in_ingred_name +
+                "= '"+ in_name +"')")
+        val cursor : Cursor = db.rawQuery(query, null)
+        cursor.moveToFirst();
+
+        if (cursor.getInt(0) == 1) {
+            cursor.close();
+            return true;}
+
+        cursor.close();
+        return false
+    }
+
+    //Convert List of ingredient names to one string to display in the ingredients text view
+    fun ingredientsToString(ingreds : List<String>) : String{
+        var ingredients = ""
+        for (i in 0..ingreds.size - 1) {
+            if( i == ingreds.size - 1) {
+                ingredients += ingreds[i] + "."
+            }
+            else {
+                ingredients += ingreds[i]+ ", "
+            }
+        }
+        return ingredients
+    }
+
+
+    //get Id of the comment with content name
+    fun getCommentId(db: SQLiteDatabase , name: String) : Int {
+        val query = "Select" + com_comment_id + "From Comments Where " + com_comment_content + " Like \"$name%\" "
+        val cursor : Cursor = db.rawQuery(query,  null)
+        cursor.moveToFirst()
+        return cursor.getInt(0)
+    }
+
+
+    //Checks if comment with in_name is already stored in Comments Table
+    fun commentInTable(in_name : String, db: SQLiteDatabase) : Boolean {
+        val query = ("SELECT EXISTS(SELECT * from " + Comments_Table +  "WHERE " + com_comment_content +
                 "= '"+ in_name +"')")
         val cursor : Cursor = db.rawQuery(query, null)
         cursor.moveToFirst();
@@ -182,37 +344,6 @@ class DBhelper (context: Context, factory: SQLiteDatabase.CursorFactory?) : SQLi
         cursor.close();
         return false
     }
-
-
-    //Get Id of the recipe with Recipe Title recipe_title
-    fun getRecipeId(db: SQLiteDatabase , recipe_title : String) : Int {
-        val query = "Select" + rec_recipe_id + "From Recipe_Table Where" + rec_recipe_title + " Like \"$recipe_title%\" "
-        val cursor : Cursor = db.rawQuery(query,  null)
-        cursor.moveToFirst()
-        return cursor.getInt(0)
-    }
-
-
-    //Get Id of the ingredient with name : name
-    fun getIngredientId(name:String , db : SQLiteDatabase) : Int {
-        val query = "Select" + in_ingred_id + "From Ingredients Where " + in_ingred_name + " Like \"$name%\" "
-        val cursor : Cursor = db.rawQuery(query,  null)
-        cursor.moveToFirst()
-        return cursor.getInt(0)
-    }
-
-
-//    fun addRecipeComments(db: SQLiteDatabase , rec_id : Int, comments: List<Comment>) {
-//        for (comment in comments) {
-//            val values = ContentValues()
-//            values.put(rc_comment_id, comment.Comment_id)
-//            values.put(rc_recipe_id, rec_id)
-//            db.insert(Recipe_Comments_Table , null , values)
-//        }
-//
-//        db.close()
-//    }
-
 
     override fun onUpgrade(p0: SQLiteDatabase?, p1: Int, p2: Int) {
     }

@@ -40,6 +40,7 @@ class RecipeDetails : YouTubeBaseActivity() {
 
     lateinit var ytPlayerInit : YouTubePlayer.OnInitializedListener
     lateinit var ingredients : List<Ingredient>
+    lateinit var comments : List<Comment>
     lateinit var recipe : RecipesItem
     val url = URL("https://kool.blackab.repl.co/ingredients")
 
@@ -50,6 +51,7 @@ class RecipeDetails : YouTubeBaseActivity() {
         var id: Int = intent.getIntExtra("Id", -1)
         setContentView(R.layout.activity_recipe_details)
 
+        getComments(id)
         getIngredients(id)
         getRecipe(id)
 
@@ -172,7 +174,7 @@ class RecipeDetails : YouTubeBaseActivity() {
                         Log.i("rec" , "recipes not null and are being assigned globally!")
                         recipe = recipes[0]
                         val recipe_picture = findViewById<AppCompatImageView>(R.id.recipe_pic)
-                        val db_pic = recipe.IMG.data
+                        val db_pic = recipe.IMG!!.data
                         val bite = ArrayList<Byte>()
                         for(num in db_pic) {
                             val num_byte = num.toByte()
@@ -181,6 +183,7 @@ class RecipeDetails : YouTubeBaseActivity() {
                         val byte_arr = bite.toByteArray()
                         Log.i("pic", "It is converted to bytes Array " + byte_arr)
                         val bitmap = BitmapFactory.decodeByteArray(byte_arr , 0 , byte_arr.size)
+                        recipe_picture.setImageBitmap(bitmap)
                         Log.i("pic", "It is converted to a bitmap " + bitmap)
                         findViewById<AppCompatTextView>(R.id.recipe_title).text = recipe.Title
                         findViewById<TextView>(R.id.recipe_time).text = "Time: " + recipe.Duration.toString() + " minutes"
@@ -190,8 +193,6 @@ class RecipeDetails : YouTubeBaseActivity() {
                         var instructions = "  *  " + recipe.Steps.replace("\n", "\n  *  ")
                         findViewById<AppCompatTextView>(R.id.recipe_instructions).text = instructions
                         findViewById<RatingBar>(R.id.ratingBar).rating = recipe.Rating.toFloat()
-                        recipe_picture.setImageBitmap(bitmap)
-                        Log.i("pic", "resource set to bitmap ")
                         val video = recipe.VID_URL.split("=")[1]
                         setVideo(video)
                     }
@@ -236,6 +237,46 @@ class RecipeDetails : YouTubeBaseActivity() {
 
             override fun onFailure(call: Call<List<Ingredient>>, t: Throwable) {
                 Log.d("rec", "error")
+            }
+        })
+    }
+
+
+
+    fun getComments(id: Int) {
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://kool.blackab.repl.co/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        val service = retrofit.create(APIinterface::class.java)
+        val call = service.getRecipeComments(id)
+        Log.i("com" , "call has been set to getRecipeComments with is $id")
+        call.enqueue(object : Callback<List<Comment>> {
+            override fun onResponse(call: Call<List<Comment>>, response: Response<List<Comment>>) {
+                if (response.isSuccessful) {
+                    val comment1 = findViewById<TextView>(R.id.comment_1)
+                    val comment2 = findViewById<TextView>(R.id.comment_2)
+                    comments = response.body()!!
+                    if (comments != null) {
+                        Log.i("com" , "comments not null!")
+                        if(comments.size >= 2) {
+                            Log.i("com" , "comments greater than 2!")
+                            comment1.text = comments[0].comment
+                            comment2.text = comments[1].comment
+                        }
+                        else if(comments.size == 1) {
+                            Log.i("com" , "comments greater exactly 1!")
+                            comment1.text = comments[0].comment
+                        }
+                    }
+
+                    Log.i("com" , "comments null!")
+                }
+            }
+
+            override fun onFailure(call: Call<List<Comment>>, t: Throwable) {
+                Log.i("com", "error for comments")
             }
         })
     }

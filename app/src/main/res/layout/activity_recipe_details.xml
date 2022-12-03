@@ -219,6 +219,7 @@
 
             <TextView
                 android:layout_width="360dp"
+                android:id="@+id/comment_1"
                 android:layout_height="wrap_content"
                 android:text="@string/comment_1"
                 android:layout_marginBottom="10dp"
@@ -228,9 +229,10 @@
                 />
 
             <TextView
+                android:id="@+id/comment_2"
                 android:layout_width="360dp"
                 android:layout_height="wrap_content"
-                android:text="@string/comment_2"
+                android:text="@string/comment_1"
                 android:layout_marginBottom="10dp"
                 android:background="@color/white"
                 android:padding="5dp"
