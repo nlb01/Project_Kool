@@ -1,9 +1,7 @@
 package com.example.koolkotlin
 
 import retrofit2.Call
-import retrofit2.http.GET
-import retrofit2.http.Path
-import retrofit2.http.Query
+import retrofit2.http.*
 
 interface APIinterface {
 
@@ -43,4 +41,16 @@ interface APIinterface {
     //Get Recipes with Ingredients {id1,id2,id3,...}
     @GET("recipes/ingredients")
     fun getRecipesWithIngredients(@Query("ingredients") ingredients: List<Int>): Call<List<RecipesItem>>
+
+    //Post Recipe
+    @POST("ingredients")
+    fun addIngredient(@Body recipe: Ingredient): Call<Ingredient>
+
+    //Post Comment
+    @POST("comments")
+    fun addComment(@Body comment: Comment): Call<Comment>
+
+    //Post Recipe
+    @POST("recipes")
+    fun addRecipe(@Body recipe: RecipeIngredients): Call<RecipesItem>
 }

@@ -225,9 +225,9 @@ fun makeIndividualCard(viewModel : IngredientListViewModel , recipe: RecipesItem
         }
     }
 
-    val db_pic = recipe.IMG.data
+    val db_pic = recipe.IMG?.data
     val bite = ArrayList<Byte>()
-    for(num in db_pic) {
+    for(num in db_pic!!) {
         val num_byte = num.toByte()
         bite.add(num_byte)
     }

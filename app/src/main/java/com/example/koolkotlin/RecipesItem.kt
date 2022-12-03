@@ -2,7 +2,7 @@ package com.example.koolkotlin
 
 data class RecipesItem(
     val Duration: Int,
-    val IMG: IMG,
+    val IMG: IMG?,
     val Notes: String,
     val Rating: Int,
     val Steps: String,
@@ -11,4 +11,5 @@ data class RecipesItem(
     val Type: String,
     val VID_URL: String,
     val recipe_id: Int
+
 )

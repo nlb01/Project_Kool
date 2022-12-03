@@ -25,6 +25,8 @@ import androidx.compose.foundation.Image
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.koolkotlin.ui.theme.DBConstants
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import java.io.ByteArrayOutputStream
 import kotlin.concurrent.thread
 
@@ -37,7 +39,7 @@ class AddRecipe : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_recipe)
-
+        addRecipe()
         if (supportActionBar != null) {
             supportActionBar!!.hide()
         }
@@ -103,6 +105,89 @@ class AddRecipe : AppCompatActivity() {
         }
 
     }
+
+
+    //function to add an ingredient to the database
+    fun addIngredient1(){
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://kool.blackab.repl.co/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        val service = retrofit.create(APIinterface::class.java)
+        //create a new ingredient object
+        val ingredient = Ingredient(Name = "Melon", Ingredient_id = 0)
+        val call = service.addIngredient(ingredient)
+        //add the ingredient to the database
+        call.enqueue(object : retrofit2.Callback<Ingredient> {
+            override fun onResponse(call: retrofit2.Call<Ingredient>, response: retrofit2.Response<Ingredient>) {
+                if (response.isSuccessful) {
+                    val ingredient = response.body()
+                    Log.d("TAG", "onResponse: " + ingredient.toString())
+                }
+            }
+
+            override fun onFailure(call: retrofit2.Call<Ingredient>, t: Throwable) {
+                Log.d("TAG", "onFailure: " + t.message)
+            }
+        })
+
+
+    }
+
+    //function to add a comment to the database
+fun addComment(){
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://kool.blackab.repl.co/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        val service = retrofit.create(APIinterface::class.java)
+        //create a new comment object
+        val comment = Comment(comment_id = 0, comment = "This is a comment", recipe_id = 9)
+        val call = service.addComment(comment)
+        //add the comment to the database
+        call.enqueue(object : retrofit2.Callback<Comment> {
+            override fun onResponse(call: retrofit2.Call<Comment>, response: retrofit2.Response<Comment>) {
+                if (response.isSuccessful) {
+                    val comment = response.body()
+                    Log.d("TAG", "onResponse: " + comment.toString())
+                }
+            }
+
+            override fun onFailure(call: retrofit2.Call<Comment>, t: Throwable) {
+                Log.d("TAG", "onFailure: " + t.message)
+            }
+        })}
+    //function to add a recipe to the database
+    fun addRecipe(){
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://kool.blackab.repl.co/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        val service = retrofit.create(APIinterface::class.java)
+        //create a new recipe object
+        val recipe = RecipesItem(Duration = 1, IMG = null, Notes = "This is a note", Rating = 3, Steps = "This is a step", Type = "This is a type", Style = "This is a style", Title = "This is a Title", recipe_id = 0, VID_URL = "This is a url vid")
+        //list of ints
+        val ingredients = listOf(66)
+        val recipe_insert = RecipeIngredients(recipe, ingredients)
+        val call = service.addRecipe(recipe_insert)
+        //add the recipe to the database
+        call.enqueue(object : retrofit2.Callback<RecipesItem> {
+            override fun onResponse(call: retrofit2.Call<RecipesItem>, response: retrofit2.Response<RecipesItem>) {
+                if (response.isSuccessful) {
+                    val recipe = response.body()
+                    Log.d("TAG", "onResponse: " + recipe.toString())
+                }
+            }
+
+            override fun onFailure(call: retrofit2.Call<RecipesItem>, t: Throwable) {
+                Log.d("TAG", "onFailure: " + t.message)
+            }
+        })
+    }
+
 
 
 
