@@ -51,6 +51,7 @@ class RecipeDetails : YouTubeBaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
+        var search_ingredients : MutableList<String> = ArrayList<String>()
         var id: Int = intent.getIntExtra("Id", -1)
         var saved: Boolean = intent.getBooleanExtra("saved", false)
 
@@ -95,6 +96,10 @@ class RecipeDetails : YouTubeBaseActivity() {
         val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1
             , All_ingredients.ingredientNames)
         textView.setAdapter(adapter)
+        textView.setOnItemClickListener { parent, view, position, id ->
+            search_ingredients.add(parent.getItemAtPosition(position).toString())
+        }
+
         textView.threshold = 1
         textView.setTokenizer(MultiAutoCompleteTextView.CommaTokenizer())
 
