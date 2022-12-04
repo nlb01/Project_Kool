@@ -135,30 +135,7 @@ class AddRecipe : AppCompatActivity() {
 
     }
 
-    //function to add a comment to the database
-fun addComment(){
-        val retrofit = Retrofit.Builder()
-            .baseUrl("https://kool.blackab.repl.co/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
 
-        val service = retrofit.create(APIinterface::class.java)
-        //create a new comment object
-        val comment = Comment(comment_id = 0, comment = "This is a comment", recipe_id = 9)
-        val call = service.addComment(comment)
-        //add the comment to the database
-        call.enqueue(object : retrofit2.Callback<Comment> {
-            override fun onResponse(call: retrofit2.Call<Comment>, response: retrofit2.Response<Comment>) {
-                if (response.isSuccessful) {
-                    val comment = response.body()
-                    Log.d("TAG", "onResponse: " + comment.toString())
-                }
-            }
-
-            override fun onFailure(call: retrofit2.Call<Comment>, t: Throwable) {
-                Log.d("TAG", "onFailure: " + t.message)
-            }
-        })}
     //function to add a recipe to the database
     fun addRecipe(){
         val retrofit = Retrofit.Builder()

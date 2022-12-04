@@ -68,7 +68,26 @@ class RecipeDetails : YouTubeBaseActivity() {
             getRecipe(id)
         }
 
-
+        //get the button with id "post"
+        val post = findViewById<Button>(R.id.post)
+        //add an event lister
+        post.setOnClickListener {
+            //get the text from the edit text
+            val comment = findViewById<EditText>(R.id.comment_to_add).text.toString()
+            //check if the text is empty
+            if (comment.isEmpty()) {
+                //if it is empty show a toast
+                Toast.makeText(this, "Please enter a comment", Toast.LENGTH_SHORT).show()
+            } else if( !saved) {
+                //create comment instance
+                val comment_obj = Comment(comment = comment, recipe_id = id, comment_id = 0)
+                addComment(comment_obj)
+                //clear the edit text
+                findViewById<EditText>(R.id.comment_to_add).text.clear()
+                intent = Intent(this, RecipeDetails::class.java);
+                startActivity(intent);
+            }
+        }
 
         val textView = findViewById<MultiAutoCompleteTextView>(R.id.search_text)
         val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1
@@ -184,10 +203,34 @@ class RecipeDetails : YouTubeBaseActivity() {
         Log.i("ingred" , "video id: " + vid)
     }
 
-    fun comment(view: View) {
+    fun comment(view: View, id: Int) {
         intent = Intent(this, RecipeDetails::class.java);
         startActivity(intent);
     }
+
+    //function to add a comment to the database
+    fun addComment(comment: Comment){
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://kool.blackab.repl.co/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        val service = retrofit.create(APIinterface::class.java)
+
+        val call = service.addComment(comment)
+        //add the comment to the database
+        call.enqueue(object : retrofit2.Callback<Comment> {
+            override fun onResponse(call: retrofit2.Call<Comment>, response: retrofit2.Response<Comment>) {
+                if (response.isSuccessful) {
+                    val comment = response.body()
+                    Log.d("TAG", "onResponse: " + comment.toString())
+                }
+            }
+
+            override fun onFailure(call: retrofit2.Call<Comment>, t: Throwable) {
+                Log.d("TAG", "onFailure: " + t.message)
+            }
+        })}
 
     fun saveRecipe(view: View) {
         val db = DBhelper(this, null)
