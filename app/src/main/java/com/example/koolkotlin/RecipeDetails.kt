@@ -17,11 +17,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import com.example.koolkotlin.ui.theme.RecipeListViewModel
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.youtube.player.YouTubeBaseActivity
 import com.google.android.youtube.player.YouTubeInitializationResult
 import com.google.android.youtube.player.YouTubePlayer
 import com.google.android.youtube.player.YouTubePlayerView
 import com.google.gson.Gson
+import kotlinx.android.synthetic.main.activity_add_recipe.*
 import kotlinx.android.synthetic.main.activity_main.*
 import java.net.HttpURLConnection
 import java.net.URL
@@ -42,6 +44,7 @@ class RecipeDetails : YouTubeBaseActivity() {
     lateinit var ingredients : List<Ingredient>
     lateinit var comments : List<Comment>
     lateinit var recipe : RecipesItem
+    lateinit var saved_recipe : List<String>
 //    val url = URL("https://kool.blackab.repl.co/ingredients")
 
 
@@ -55,7 +58,9 @@ class RecipeDetails : YouTubeBaseActivity() {
         setContentView(R.layout.activity_recipe_details)
 
         if(saved) {
-
+            var db = DBhelper(this, null)
+            saved_recipe = db.getRecipe(id , true)
+            getSavedRecipe()
         }
         else {
             getComments(id)
@@ -72,8 +77,11 @@ class RecipeDetails : YouTubeBaseActivity() {
         textView.threshold = 1
         textView.setTokenizer(MultiAutoCompleteTextView.CommaTokenizer())
 
+
         val add = findViewById<ImageButton>(R.id.add)
         val bookMark = findViewById<ImageButton>(R.id.bookMark)
+        val save = findViewById<ImageButton>(R.id.save_recipe)
+
 
         val scale_down = AnimationUtils.loadAnimation(this, R.anim.scale_down)
         val scale_up = AnimationUtils.loadAnimation(this, R.anim.scale_up)
@@ -90,6 +98,24 @@ class RecipeDetails : YouTubeBaseActivity() {
                 MotionEvent.ACTION_DOWN -> {
                     bookMark.startAnimation(scale_up)
                     bookMark.setBackgroundResource(R.drawable.button_clicked)
+                }
+            }
+                return@OnTouchListener true
+            }
+        )
+
+        save.setOnTouchListener(
+            View.OnTouchListener {
+                    view ,
+                    motionEvent -> when (motionEvent.action) {
+                MotionEvent.ACTION_UP -> {
+                    save.startAnimation(scale_down)
+                    save.performClick()
+                    save.setBackgroundResource(R.drawable.ring_button)
+                }
+                MotionEvent.ACTION_DOWN -> {
+                    save.startAnimation(scale_up)
+                    save.setBackgroundResource(R.drawable.button_clicked)
                 }
             }
                 return@OnTouchListener true
@@ -113,6 +139,8 @@ class RecipeDetails : YouTubeBaseActivity() {
                 return@OnTouchListener true
             }
         )
+
+
 
         bookMark.setOnClickListener {
             Log.i("saved","Going to Bookmarked Activity")
@@ -165,7 +193,64 @@ class RecipeDetails : YouTubeBaseActivity() {
         val db = DBhelper(this, null)
         db.addRecipe(recipe, ingredients, comments)
         all_bookMarks = db.getAllRecipes()
-        Toast.makeText(this, "Recipe Saved Successfully!!" , Toast.LENGTH_SHORT)
+        val mySnackbar = Snackbar.make(findViewById(R.id.const_layout) , "Recipe Saved Succesfully!" , Snackbar.LENGTH_SHORT)
+        mySnackbar.show()
+    }
+
+    fun getSavedRecipe() {
+        val recipe_picture = findViewById<AppCompatImageView>(R.id.recipe_pic)
+        val title = saved_recipe[0]
+        val duration = saved_recipe [1]
+        val type = saved_recipe [2]
+        val style = saved_recipe [3]
+        var img = saved_recipe[4].replace("IMG(data=", "")
+        img = img.replace("[" , "")
+        img = img.replace("]" , "")
+        img = img.replace(" " , "")
+        img = img.replace("type=Buffer)" , "")
+        val ingredients = saved_recipe [5]
+        val id = saved_recipe[6]
+        val steps = saved_recipe[7]
+        val notes = saved_recipe[8]
+        val vid = saved_recipe[9]
+        val rating = saved_recipe[10]
+
+        Log.i("saved" , "ingredients are : " + ingredients)
+        Log.i("saved" , "steps are : " + steps)
+
+        val charList = img.split(",")
+        val bite = ArrayList<Byte>()
+        for(num in  charList) {
+            if (num != "") {
+                val num_int = num.toInt()
+                val byte = num_int.toByte()
+                bite.add(byte)
+            }
+        }
+
+        val byte_arr = bite.toByteArray()
+        val bitmap = BitmapFactory.decodeByteArray(byte_arr , 0 , byte_arr.size)
+
+        recipe_picture.setImageBitmap(bitmap)
+        Log.i("pic", "It is converted to a bitmap " + bitmap)
+        findViewById<AppCompatTextView>(R.id.recipe_title).text = title
+        findViewById<TextView>(R.id.recipe_time).text = "Time: " + duration + " minutes"
+        findViewById<AppCompatTextView>(R.id.recipe_notes).text = notes
+        findViewById<TextView>(R.id.recipe_style).text = "Cuisine: " + style
+        findViewById<TextView>(R.id.recipe_type).text = "Type: " + type
+        findViewById<AppCompatTextView>(R.id.recipe_ingredients).text = ingredients
+        findViewById<TextView>(R.id.comment_1).text = "NO Comment"
+        findViewById<TextView>(R.id.comment_2).text = "NO Comment"
+        findViewById<AppCompatTextView>(R.id.recipe_instructions).text = steps
+        findViewById<RatingBar>(R.id.ratingBar).rating = rating.toFloat()
+        val video : String
+        if(vid == null) {
+            video = "dQw4w9WgXcQ"
+        }
+        else {
+            video = vid.split("=")[1]
+        }
+        setVideo(video)
     }
 
     fun getRecipe(id: Int) {
@@ -205,7 +290,14 @@ class RecipeDetails : YouTubeBaseActivity() {
                         var instructions = "  *  " + recipe.Steps.replace("\n", "\n  *  ")
                         findViewById<AppCompatTextView>(R.id.recipe_instructions).text = instructions
                         findViewById<RatingBar>(R.id.ratingBar).rating = recipe.Rating.toFloat()
-                        val video = recipe.VID_URL.split("=")[1]
+                        val video : String
+                        if (recipe.VID_URL == null) {
+                            video = "dQw4w9WgXcQ"
+                        }
+                        else {
+                            video = recipe.VID_URL.split("=")[1]
+                        }
+
                         setVideo(video)
                     }
                 }
