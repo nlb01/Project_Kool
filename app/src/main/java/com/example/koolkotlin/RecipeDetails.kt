@@ -85,6 +85,8 @@ class RecipeDetails : YouTubeBaseActivity() {
                 //clear the edit text
                 findViewById<EditText>(R.id.comment_to_add).text.clear()
                 intent = Intent(this, RecipeDetails::class.java);
+                intent.putExtra("Id", id)
+                intent.putExtra("saved", false)
                 startActivity(intent);
             }
         }
