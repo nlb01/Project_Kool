@@ -37,6 +37,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.coroutines.coroutineContext
 
 var all_recipes : List<RecipesItem> = ArrayList<RecipesItem>()
 
@@ -153,7 +154,6 @@ class HomePageCompose : ComponentActivity() {
 
         bookMark.setOnClickListener {
             intent = Intent(this, Bookmarked::class.java);
-            intent.putExtra("bookMark" , true)
             startActivity(intent);
         }
 
@@ -231,9 +231,16 @@ fun makeIndividualCard(viewModel : IngredientListViewModel , recipe: RecipesItem
         val num_byte = num.toByte()
         bite.add(num_byte)
     }
-    val byte_arr = bite.toByteArray()
-    val bitmap = BitmapFactory.decodeByteArray(byte_arr , 0 , byte_arr.size)
 
+    Log.i("pic" , "------------------------------------------------")
+
+    val byte_arr = bite.toByteArray()
+    Log.i("pic" , "size = : " +  byte_arr.size.toString())
+    var bitmap = BitmapFactory.decodeByteArray(byte_arr , 0 , byte_arr.size)
+    if(bitmap == null) {
+        bitmap= BitmapFactory.decodeResource(LocalContext.current.resources , R.drawable.index)
+    }
+    Log.i("pic" , "bitmap = " + bitmap.toString())
     PreviewCard(
         bit = bitmap,
         id = recipe.recipe_id,

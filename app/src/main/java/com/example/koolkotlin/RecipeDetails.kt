@@ -327,6 +327,7 @@ class RecipeDetails : YouTubeBaseActivity() {
                             val num_byte = num.toByte()
                             bite.add(num_byte)
                         }
+
                         val byte_arr = bite.toByteArray()
                         Log.i("pic", "It is converted to bytes Array " + byte_arr)
                         val bitmap = BitmapFactory.decodeByteArray(byte_arr , 0 , byte_arr.size)

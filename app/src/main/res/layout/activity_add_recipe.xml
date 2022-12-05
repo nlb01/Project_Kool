@@ -14,7 +14,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".AddRecipe"
-        android:background="@color/main_background">
+        android:background="@color/main_background"
+        android:id="@+id/add_layout">
 
         <include layout="@layout/top_bar" />
 

@@ -16,6 +16,7 @@ import android.view.animation.AnimationUtils
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.snackbar.Snackbar
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.ByteArrayOutputStream
@@ -40,6 +41,7 @@ class AddRecipe : AppCompatActivity() {
         if (supportActionBar != null) {
             supportActionBar!!.hide()
         }
+
 
         val textView = findViewById<MultiAutoCompleteTextView>(R.id.search_text)
         val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1
@@ -99,8 +101,7 @@ class AddRecipe : AppCompatActivity() {
         )
 
         bookMark.setOnClickListener {
-            intent = Intent(this, HomePageCompose::class.java);
-            intent.putExtra("bookMark" , true)
+            intent = Intent(this, Bookmarked::class.java);
             startActivity(intent);
         }
 
@@ -181,6 +182,15 @@ class AddRecipe : AppCompatActivity() {
                 Log.d("TAG", "onFailure: " + t.message)
             }
         })
+
+        val mySnackbar = Snackbar.make(findViewById(R.id.add_layout) , "Recipe added Succesfully!" , Snackbar.LENGTH_SHORT)
+        mySnackbar.show()
+
+        val ingreds = listOf(-1)
+        intent = Intent(this, HomePageCompose::class.java);
+        intent.putExtra("type", "none")
+        intent.putExtra("ingredList", ingreds.toIntArray())
+        startActivity(intent);
     }
 
 
@@ -199,7 +209,7 @@ class AddRecipe : AppCompatActivity() {
 
 
 
-        val img = IMG(type = "Loaded", data = imageList)
+        val img = IMG(type = "Buffer", data = imageList)
 
 
         val recipe = RecipesItem(recipe_id = 0, Title = title, Duration = time.toInt(), Style = style, Type = type, Steps = instructions, Notes = notes, VID_URL = videoLink, IMG = img, Rating = 0)
@@ -218,7 +228,7 @@ class AddRecipe : AppCompatActivity() {
     //function to get a picture from the gallery
     fun getPhoto(view : View){
         val intent = Intent(Intent.ACTION_PICK)
-        intent.type = "image/*"
+        intent.type = "image/png"
         resultLauncher.launch(intent)
     }
 
@@ -230,9 +240,9 @@ class AddRecipe : AppCompatActivity() {
             //log uri
             Log.d("TAG", "onActivityResult: " + uri.toString())
             //convert into a bitmap
-            val bitmap = MediaStore.Images.Media.getBitmap(this.contentResolver, data?.data)
+            val bitmap = MediaStore.Images.Media.getBitmap(this.contentResolver, uri)
             val stream = ByteArrayOutputStream()
-            bitmap.compress(Bitmap.CompressFormat.PNG, 90, stream)
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, stream)
             val image = stream.toByteArray()
 
             var lis : MutableList<Int> = ArrayList<Int>()
@@ -249,8 +259,6 @@ class AddRecipe : AppCompatActivity() {
             textView.text = data?.data.toString()
             //print data
         }
-
-        
     }
 
 
