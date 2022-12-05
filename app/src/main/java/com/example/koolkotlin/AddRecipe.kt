@@ -1,39 +1,31 @@
 package com.example.koolkotlin
 
+import android.R.attr
 import android.app.Activity
-import java.sql.*
-import java.util.Properties
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.graphics.ImageDecoder
+import android.graphics.Bitmap.CompressFormat
+import android.graphics.BitmapFactory
 import android.net.Uri
-import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.StrictMode
 import android.provider.MediaStore
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.animation.AnimationUtils
-import android.widget.ArrayAdapter
-import android.widget.EditText
-import android.widget.ImageButton
-import android.widget.MultiAutoCompleteTextView
-import androidx.compose.foundation.Image
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import com.example.koolkotlin.ui.theme.DBConstants
+import android.widget.*
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.ByteArrayOutputStream
-import kotlin.concurrent.thread
+import java.sql.*
+
 
 class AddRecipe : AppCompatActivity() {
     var pickedPhoto :Uri? = null
     var pickedBitMap : Bitmap? = null
-
+    var imageList : MutableList<Int> = ArrayList()
 
     private var conn: Connection? = null
 
@@ -41,6 +33,9 @@ class AddRecipe : AppCompatActivity() {
         var search_ingredients : MutableList<String> = ArrayList<String>()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_recipe)
+
+        //Create IMG Object
+        val img = IMG(type = "Loaded", data = listOf(1,2,3,4,5,6,7,8,9,10))
 
         if (supportActionBar != null) {
             supportActionBar!!.hide()
@@ -156,12 +151,22 @@ class AddRecipe : AppCompatActivity() {
         val service = retrofit.create(APIinterface::class.java)
         //create a new recipe object
 
+        //check if imageList is empty
+        if(imageList.isEmpty()){
+            //if it is empty notify the user and return
+            Toast.makeText(this, "Please add an image", Toast.LENGTH_SHORT).show()
+            return
+        }
 
 
-        val recipe = RecipesItem(Duration = 1, IMG = null, Notes = "This is a note", Rating = 3, Steps = "This is a step", Type = "This is a type", Style = "This is a style", Title = "This is a Title", recipe_id = 0, VID_URL = "This is a url vid")
+        val ingredients = findViewById<EditText>(R.id.ingredientsText).text.toString()
+        val ingredientsArray:List<String> = ingredients.split(",").map { it -> it.trim() }
+
+
+        //create a new recipe object
+        val recipe = getFields()
         //list of ints
-        val ingredients = listOf(66)
-        val recipe_insert = RecipeIngredients(recipe, ingredients)
+        val recipe_insert = RecipeIngredients(recipe, ingredientsArray)
         val call = service.addRecipe(recipe_insert)
         //add the recipe to the database
         call.enqueue(object : retrofit2.Callback<RecipesItem> {
@@ -179,11 +184,73 @@ class AddRecipe : AppCompatActivity() {
     }
 
 
+    //function to get all the data from the form and return a recipe object
+    fun getFields(): RecipesItem {
+        //get information from the text fields
+        val title = findViewById<EditText>(R.id.titleText).text.toString()
+        val time = findViewById<EditText>(R.id.timeText).text.toString()
+        val style = findViewById<EditText>(R.id.styleText).text.toString()
+        val type = findViewById<EditText>(R.id.typeText).text.toString()
+        val instructions = findViewById<EditText>(R.id.instructionsText).text.toString()
+
+        val notes = findViewById<EditText>(R.id.notesText).text.toString()
+        val videoLink = findViewById<EditText>(R.id.videoText).text.toString()
+        //check if video link is empty then don't execute next line
+
+
+
+        val img = IMG(type = "Loaded", data = imageList)
+
+
+        val recipe = RecipesItem(recipe_id = 0, Title = title, Duration = time.toInt(), Style = style, Type = type, Steps = instructions, Notes = notes, VID_URL = videoLink, IMG = img, Rating = 0)
+
+        return recipe
+    }
+
 
 
     fun addActivity(view : View) {
         intent = Intent(this, AddRecipe::class.java);
         startActivity(intent);
+    }
+
+
+    //function to get a picture from the gallery
+    fun getPhoto(view : View){
+        val intent = Intent(Intent.ACTION_PICK)
+        intent.type = "image/*"
+        resultLauncher.launch(intent)
+    }
+
+    var resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == RESULT_OK) {
+            // There are no request codes
+            val data: Intent? = result.data
+            val uri = data?.data
+            //log uri
+            Log.d("TAG", "onActivityResult: " + uri.toString())
+            //convert into a bitmap
+            val bitmap = MediaStore.Images.Media.getBitmap(this.contentResolver, data?.data)
+            val stream = ByteArrayOutputStream()
+            bitmap.compress(Bitmap.CompressFormat.PNG, 90, stream)
+            val image = stream.toByteArray()
+
+            var lis : MutableList<Int> = ArrayList<Int>()
+            for (byte in image) {
+                var convert = byte.toInt()
+                lis.add(convert)
+            }
+            //assign list to the imageList
+            imageList = lis
+            //log image
+            Log.d("TAG", "ints List =  "  + lis.toString())
+            val textView = findViewById<TextView>(R.id.picText)
+            //set textview to the uri of the image
+            textView.text = data?.data.toString()
+            //print data
+        }
+
+        
     }
 
 

@@ -2,5 +2,5 @@ package com.example.koolkotlin
 
 data class RecipeIngredients(
     val recipe : RecipesItem,
-    val ingredients : List<Int>
+    val ingredients : List<String>
 )

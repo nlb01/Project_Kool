@@ -254,6 +254,7 @@
                     android:textColor="@color/title_color"/>
 
                 <TextView
+                    android:id="@+id/picText"
                     android:paddingTop="2dp"
                     android:paddingBottom="2dp"
                     android:paddingLeft="5dp"
@@ -271,7 +272,7 @@
                     android:layout_height="25dp"
                     android:background="@drawable/search_button"
                     android:text="@string/upload_pic"
-                    android:onClick="uploadPicture"
+                    android:onClick="getPhoto"
                     android:textColor="@color/button_outline"
                     android:layout_gravity="right"
                     android:layout_marginRight="30dp"
@@ -288,6 +289,7 @@
                 android:textColor="@color/button_outline"
                 android:layout_gravity="right"
                 android:onClick="addRecipe"
+
                 android:layout_marginBottom="30dp"
                 />
 
